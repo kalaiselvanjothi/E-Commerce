@@ -1,0 +1,119 @@
+<div class="container py-10">
+  <app-breadcrumb [items]="[{label:'Home',link:'/'},{label:pageTitle}]" />
+
+  <div class="list-layout">
+    <!-- Filters Sidebar -->
+    <aside class="filters-sidebar" [class.open]="showFilters()">
+      <div class="sidebar-header">
+        <h3>Filters</h3>
+        <button class="close-btn" (click)="showFilters.set(false)">✕</button>
+      </div>
+
+      <!-- Brand -->
+      @if (filterMeta()?.brands?.length) {
+        <div class="filter-section">
+          <h4 class="filter-label">Brand</h4>
+          <select class="form-control" [(ngModel)]="brand">
+            <option value="">All Brands</option>
+            @for (b of filterMeta()!.brands; track b) {
+              <option [value]="b">{{ b }}</option>
+            }
+          </select>
+        </div>
+      }
+
+      <!-- Price Range -->
+      <div class="filter-section">
+        <h4 class="filter-label">Price Range</h4>
+        <div class="price-inputs">
+          <input type="number" class="form-control" [(ngModel)]="minPrice" placeholder="Min ₹" />
+          <span>–</span>
+          <input type="number" class="form-control" [(ngModel)]="maxPrice" placeholder="Max ₹" />
+        </div>
+      </div>
+
+      <!-- Rating -->
+      <div class="filter-section">
+        <h4 class="filter-label">Min Rating</h4>
+        <div class="rating-options">
+          @for (r of [4,3,2,1]; track r) {
+            <label class="radio-option">
+              <input type="radio" [value]="r.toString()" [(ngModel)]="minRating" />
+              <span>{{ r }}★ & above</span>
+            </label>
+          }
+          <label class="radio-option">
+            <input type="radio" value="" [(ngModel)]="minRating" />
+            <span>All ratings</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- In Stock -->
+      <div class="filter-section">
+        <label class="checkbox-option">
+          <input type="checkbox" [(ngModel)]="inStock" />
+          <span>In Stock Only</span>
+        </label>
+      </div>
+
+      <div class="filter-actions">
+        <button class="btn-primary btn-full" (click)="applyFilters()">Apply Filters</button>
+        <button class="btn-ghost btn-full" (click)="clearFilters()">Clear All</button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="products-main">
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <button class="filter-toggle" (click)="showFilters.set(!showFilters())">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+            Filters
+          </button>
+          @if (result()) {
+            <span class="results-count">{{ result()!.totalCount | number }} products</span>
+          }
+        </div>
+        <div class="toolbar-right">
+          <select class="sort-select" [(ngModel)]="sortBy" (ngModelChange)="onSortChange($event)">
+            @for (opt of sortOptions; track opt.value) {
+              <option [value]="opt.value">{{ opt.label }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <!-- Grid -->
+      @if (loading()) {
+        <div class="products-grid">
+          @for (s of skeletonItems; track $index) {
+            <div class="product-skeleton">
+              <app-skeleton height="180px" radius="12px 12px 0 0" />
+              <div class="skeleton-body">
+                <app-skeleton height="11px" width="50%" />
+                <app-skeleton height="14px" />
+                <app-skeleton height="14px" width="75%" />
+                <app-skeleton height="18px" width="45%" />
+              </div>
+            </div>
+          }
+        </div>
+      } @else if (!result()?.items?.length) {
+        <app-empty-state icon="🔍" title="No products found" description="Try adjusting your filters or search query." actionLabel="Clear Filters" (click)="clearFilters()" />
+      } @else {
+        <div class="products-grid">
+          @for (product of result()!.items; track product.id) {
+            <app-product-card [product]="product" />
+          }
+        </div>
+        <app-pagination
+          [currentPage]="result()!.page"
+          [totalPages]="result()!.totalPages"
+          (pageChange)="onPageChange($event)"
+        />
+      }
+    </main>
+  </div>
+</div>

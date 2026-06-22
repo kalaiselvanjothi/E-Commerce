@@ -1,0 +1,226 @@
+<div class="container py-8">
+  @if (loading()) {
+    <div class="detail-skeleton">
+      <app-skeleton height="480px" radius="16px" />
+      <div class="sk-info">
+        <app-skeleton height="14px" width="40%" />
+        <app-skeleton height="28px" />
+        <app-skeleton height="28px" width="70%" />
+        <app-skeleton height="20px" width="30%" />
+        <app-skeleton height="24px" width="25%" />
+        <app-skeleton height="48px" radius="10px" />
+        <app-skeleton height="48px" radius="10px" />
+      </div>
+    </div>
+  } @else if (product()) {
+    <app-breadcrumb [items]="breadcrumbs" />
+
+    <div class="detail-grid">
+      <!-- Gallery -->
+      <div class="gallery">
+        <div class="main-image">
+          <img
+            [src]="product()!.images[activeImage()]?.url || product()!.primaryImageUrl || '/assets/placeholder.svg'"
+            [alt]="product()!.name"
+          />
+          @if (product()!.discountPercent) {
+            <span class="img-badge">{{ product()!.discountPercent }}% OFF</span>
+          }
+        </div>
+        @if (product()!.images.length > 1) {
+          <div class="thumbnails">
+            @for (img of product()!.images; track img.id; let i = $index) {
+              <button
+                class="thumb"
+                [class.active]="activeImage() === i"
+                (click)="selectImage(i)"
+              >
+                <img [src]="img.url" [alt]="img.altText || product()!.name" />
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Info -->
+      <div class="product-info">
+        <div class="product-meta">
+          <span class="brand-tag">{{ product()!.brand }}</span>
+          @if (product()!.isFeatured) { <span class="featured-tag">Featured</span> }
+        </div>
+        <h1 class="product-name">{{ product()!.name }}</h1>
+
+        <div class="rating-row">
+          <app-star-rating [rating]="product()!.averageRating" [count]="product()!.totalReviews" [showCount]="true" />
+          <span class="sold-count">{{ product()!.totalSold | number }} sold</span>
+        </div>
+
+        <div class="price-block">
+          <span class="main-price">₹{{ effectivePrice | number }}</span>
+          @if (product()!.compareAtPrice) {
+            <span class="compare-price">₹{{ product()!.compareAtPrice! | number }}</span>
+            <span class="save-badge">Save ₹{{ (product()!.compareAtPrice! - effectivePrice) | number }}</span>
+          }
+        </div>
+
+        @if (product()!.shortDescription) {
+          <p class="short-desc">{{ product()!.shortDescription }}</p>
+        }
+
+        <!-- Variants -->
+        @if (product()!.variants.length > 0) {
+          <div class="variants-section">
+            <span class="variant-label">{{ product()!.variants[0].name }}</span>
+            <div class="variant-chips">
+              @for (v of product()!.variants; track v.id) {
+                <button
+                  class="variant-chip"
+                  [class.selected]="selectedVariant()?.id === v.id"
+                  [class.oos]="v.stock === 0"
+                  [disabled]="v.stock === 0"
+                  (click)="selectVariant(v)"
+                >
+                  {{ v.value }}
+                  @if (v.priceModifier > 0) { <span>(+₹{{ v.priceModifier | number }})</span> }
+                </button>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Quantity -->
+        <div class="qty-row">
+          <span class="qty-label">Quantity</span>
+          <div class="qty-control">
+            <button (click)="adjustQty(-1)" [disabled]="quantity() <= 1">−</button>
+            <span>{{ quantity() }}</span>
+            <button (click)="adjustQty(1)" [disabled]="quantity() >= product()!.stock">+</button>
+          </div>
+          <span class="stock-info" [class.low]="product()!.stock <= 5">
+            @if (product()!.stock === 0) { Out of Stock }
+            @else if (product()!.stock <= 5) { Only {{ product()!.stock }} left! }
+            @else { In Stock }
+          </span>
+        </div>
+
+        <!-- Actions -->
+        <div class="action-row">
+          <button
+            class="btn-primary btn-lg"
+            [disabled]="product()!.stock === 0 || addingToCart()"
+            (click)="addToCart()"
+          >
+            @if (addingToCart()) { Adding… } @else { Add to Cart }
+          </button>
+          <button
+            class="wish-action"
+            [class.active]="isWishlisted"
+            (click)="toggleWishlist()"
+            title="Wishlist"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Trust badges -->
+        <div class="trust-row">
+          <span>🚚 Free delivery above ₹499</span>
+          <span>↩ 30-day returns</span>
+          <span>🔒 Secure checkout</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs-section">
+      <div class="tab-nav">
+        <button class="tab-btn" [class.active]="activeTab()==='description'" (click)="activeTab.set('description')">Description</button>
+        <button class="tab-btn" [class.active]="activeTab()==='specs'" (click)="activeTab.set('specs')">Specifications</button>
+        <button class="tab-btn" [class.active]="activeTab()==='reviews'" (click)="activeTab.set('reviews')">
+          Reviews ({{ product()!.totalReviews }})
+        </button>
+      </div>
+
+      <div class="tab-content">
+        @if (activeTab() === 'description') {
+          <div class="description-content" [innerHTML]="product()!.description"></div>
+        }
+        @if (activeTab() === 'specs') {
+          @if (product()!.specifications && (product()!.specifications | keyvalue).length) {
+            <table class="specs-table">
+              @for (entry of product()!.specifications | keyvalue; track entry.key) {
+                <tr><th>{{ entry.key }}</th><td>{{ entry.value }}</td></tr>
+              }
+            </table>
+          } @else {
+            <p class="no-specs">No specifications available.</p>
+          }
+        }
+        @if (activeTab() === 'reviews') {
+          <!-- Rating Summary -->
+          <div class="reviews-layout">
+            <div class="rating-summary">
+              <div class="avg-score">{{ product()!.averageRating | number:'1.1-1' }}</div>
+              <app-star-rating [rating]="product()!.averageRating" />
+              <p>{{ product()!.totalReviews }} reviews</p>
+            </div>
+
+            <div class="reviews-list">
+              @for (r of product()!.reviews.items; track r.id) {
+                <div class="review-card">
+                  <div class="review-header">
+                    <div class="reviewer-avatar">{{ r.userName[0] }}</div>
+                    <div>
+                      <div class="reviewer-name">{{ r.userName }}</div>
+                      <app-star-rating [rating]="r.rating" />
+                    </div>
+                    @if (r.isVerifiedPurchase) {
+                      <span class="verified-badge">✓ Verified Purchase</span>
+                    }
+                    <span class="review-date">{{ r.createdAt | date:'mediumDate' }}</span>
+                  </div>
+                  @if (r.title) { <h4 class="review-title">{{ r.title }}</h4> }
+                  <p class="review-body">{{ r.body }}</p>
+                </div>
+              }
+
+              @if (!product()!.reviews.items.length) {
+                <p class="no-reviews">No reviews yet. Be the first to review!</p>
+              }
+
+              <!-- Write review -->
+              @if (isLoggedIn) {
+                <div class="write-review">
+                  <h4>Write a Review</h4>
+                  <app-star-rating [rating]="newRating()" [interactive]="true" (ratingChange)="newRating.set($event)" />
+                  <input type="text" class="form-control" [(ngModel)]="reviewTitle" placeholder="Review title (optional)" />
+                  <textarea class="form-control" [(ngModel)]="reviewBody" rows="4" placeholder="Share your experience..."></textarea>
+                  <button class="btn-primary" [disabled]="!newRating() || !reviewBody || submittingReview()" (click)="submitReview()">
+                    @if (submittingReview()) { Submitting… } @else { Submit Review }
+                  </button>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Related Products -->
+    @if (product()!.relatedProducts.length > 0) {
+      <div class="related-section">
+        <div class="section-header">
+          <h2>Related Products</h2>
+          <a [routerLink]="['/category', product()!.categorySlug]">View all →</a>
+        </div>
+        <div class="products-grid">
+          @for (p of product()!.relatedProducts; track p.id) {
+            <app-product-card [product]="p" />
+          }
+        </div>
+      </div>
+    }
+  }
+</div>

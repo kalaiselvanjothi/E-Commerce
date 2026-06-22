@@ -1,0 +1,81 @@
+<div class="admin-page">
+  <div class="page-header">
+    <h1 class="page-title">Products</h1>
+    <div class="header-actions">
+      <input type="text" class="form-control search-input" [(ngModel)]="search"
+        placeholder="Search products…" (keydown.enter)="onSearch()" />
+      <button class="btn-primary" (click)="onSearch()">Search</button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="skeleton" style="height:400px;border-radius:16px"></div>
+  } @else {
+    <div class="table-card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Sold</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (p of result()?.items; track p.id) {
+            <tr>
+              <td>
+                <div class="product-cell">
+                  <img [src]="p.primaryImageUrl || '/assets/placeholder.svg'" [alt]="p.name" class="prod-thumb" />
+                  <div>
+                    <div class="prod-name">{{ p.name }}</div>
+                    <div class="prod-brand">{{ p.brand }}</div>
+                  </div>
+                </div>
+              </td>
+              <td>{{ p.categoryName }}</td>
+              <td>₹{{ p.price | number }}</td>
+              <td [class.low-stock]="p.stock <= 5">{{ p.stock }}</td>
+              <td>{{ p.totalSold }}</td>
+              <td>
+                <span class="status-chip" [class.active]="p.isActive" [class.inactive]="!p.isActive">
+                  {{ p.isActive ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td>
+                <div class="action-btns">
+                  <button class="icon-btn" (click)="toggleActive(p.id)" [title]="p.isActive ? 'Deactivate' : 'Activate'">
+                    {{ p.isActive ? '👁️' : '🙈' }}
+                  </button>
+                  <button class="icon-btn danger" (click)="confirmDeleteId.set(p.id)" title="Delete">🗑️</button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <app-pagination
+      [currentPage]="result()!.page"
+      [totalPages]="result()!.totalPages"
+      (pageChange)="onPageChange($event)"
+    />
+  }
+
+  @if (confirmDeleteId()) {
+    <div class="modal-overlay" (click)="confirmDeleteId.set(null)">
+      <div class="confirm-box" (click)="$event.stopPropagation()">
+        <h3>Delete Product?</h3>
+        <p>This will soft-delete the product and remove it from the storefront.</p>
+        <div class="confirm-btns">
+          <button class="btn-ghost" (click)="confirmDeleteId.set(null)">Cancel</button>
+          <button class="btn-danger" (click)="delete(confirmDeleteId()!)">Delete</button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

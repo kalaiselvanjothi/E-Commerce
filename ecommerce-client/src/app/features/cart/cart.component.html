@@ -1,0 +1,130 @@
+<div class="container py-8">
+  <h1 class="page-title">Shopping Cart</h1>
+
+  @if (loading()) {
+    <div class="cart-skeleton">
+      <div class="sk-items">
+        @for (i of [1,2,3]; track i) {
+          <div class="sk-item">
+            <div class="skeleton" style="width:80px;height:80px;border-radius:8px"></div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+              <div class="skeleton" style="height:14px;width:60%"></div>
+              <div class="skeleton" style="height:12px;width:30%"></div>
+              <div class="skeleton" style="height:16px;width:20%"></div>
+            </div>
+          </div>
+        }
+      </div>
+      <div class="skeleton" style="height:300px;border-radius:16px"></div>
+    </div>
+  } @else if (!cart()?.items?.length) {
+    <app-empty-state
+      icon="🛒"
+      title="Your cart is empty"
+      description="Add some items to get started!"
+      actionLabel="Browse Products"
+      actionLink="/products"
+    />
+  } @else {
+    <div class="cart-layout">
+      <!-- Items -->
+      <div class="cart-items">
+        @for (item of cart()!.items; track item.id) {
+          <div class="cart-item">
+            <a [routerLink]="['/products', item.productSlug]" class="item-image">
+              <img [src]="item.productImage || '/assets/placeholder.svg'" [alt]="item.productName" />
+            </a>
+
+            <div class="item-details">
+              <a [routerLink]="['/products', item.productSlug]" class="item-name">{{ item.productName }}</a>
+              <span class="item-brand">{{ item.brand }}</span>
+              @if (item.variantName) { <span class="item-variant">{{ item.variantName }}</span> }
+              <span class="item-unit-price">₹{{ item.unitPrice | number }} each</span>
+            </div>
+
+            <div class="item-controls">
+              <div class="qty-control">
+                <button (click)="updateQty(item.id, item.quantity - 1)" [disabled]="item.quantity <= 1">−</button>
+                <span>{{ item.quantity }}</span>
+                <button (click)="updateQty(item.id, item.quantity + 1)" [disabled]="item.quantity >= item.stock">+</button>
+              </div>
+              <span class="item-total">₹{{ item.totalPrice | number }}</span>
+              <button class="remove-btn" (click)="removeItem(item.id)" title="Remove">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <polyline points="3,6 5,6 21,6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        }
+
+        <a routerLink="/products" class="continue-shopping">← Continue Shopping</a>
+      </div>
+
+      <!-- Summary -->
+      <div class="cart-summary">
+        <h2>Order Summary</h2>
+
+        <!-- Coupon -->
+        <div class="coupon-section">
+          @if (cart()!.couponCode) {
+            <div class="coupon-applied">
+              <span>🏷️ <strong>{{ cart()!.couponCode }}</strong> applied</span>
+              <button (click)="removeCoupon()" class="remove-coupon">✕</button>
+            </div>
+          } @else {
+            <div class="coupon-input">
+              <input type="text" class="form-control" [(ngModel)]="couponCode"
+                placeholder="Enter coupon code" (keydown.enter)="applyCoupon()" />
+              <button class="btn-secondary" (click)="applyCoupon()" [disabled]="applyingCoupon() || !couponCode">
+                {{ applyingCoupon() ? '…' : 'Apply' }}
+              </button>
+            </div>
+            <p class="coupon-hint">Try: WELCOME10, SAVE500, FREESHIP, SUMMER25</p>
+          }
+        </div>
+
+        <div class="summary-lines">
+          <div class="summary-line">
+            <span>Subtotal ({{ cart()!.itemCount }} items)</span>
+            <span>₹{{ cart()!.subtotal | number }}</span>
+          </div>
+          @if (cart()!.couponDiscount && cart()!.couponDiscount! > 0) {
+            <div class="summary-line discount">
+              <span>Coupon Discount</span>
+              <span>−₹{{ cart()!.couponDiscount! | number }}</span>
+            </div>
+          }
+          <div class="summary-line">
+            <span>Shipping</span>
+            @if (cart()!.isFreeShipping || cart()!.shippingCost === 0) {
+              <span class="free-ship">FREE</span>
+            } @else {
+              <span>₹{{ cart()!.shippingCost | number }}</span>
+            }
+          </div>
+          <div class="summary-line">
+            <span>Tax (18% GST)</span>
+            <span>₹{{ cart()!.taxAmount | number }}</span>
+          </div>
+          <div class="summary-line total">
+            <span>Total</span>
+            <span>₹{{ cart()!.total | number }}</span>
+          </div>
+        </div>
+
+        @if (auth.isLoggedIn()) {
+          <a routerLink="/checkout" class="btn-primary btn-full checkout-btn">
+            Proceed to Checkout →
+          </a>
+        } @else {
+          <a routerLink="/auth/login" [queryParams]="{returnUrl:'/checkout'}" class="btn-primary btn-full checkout-btn">
+            Sign in to Checkout
+          </a>
+        }
+
+        <p class="secure-note">🔒 Secure checkout powered by Razorpay</p>
+      </div>
+    </div>
+  }
+</div>

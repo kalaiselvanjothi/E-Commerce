@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/ShopVerse.API/ShopVerse.API.csproj" />
+    <Project Path="src/ShopVerse.Application/ShopVerse.Application.csproj" />
+    <Project Path="src/ShopVerse.Domain/ShopVerse.Domain.csproj" />
+    <Project Path="src/ShopVerse.Infrastructure/ShopVerse.Infrastructure.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,170 @@
+<div class="container py-8">
+  <h1 class="page-title">Checkout</h1>
+
+  <!-- Steps -->
+  <div class="steps">
+    @for (s of [{n:1,l:'Address'},{n:2,l:'Delivery'},{n:3,l:'Payment'}]; track s.n) {
+      <div class="step" [class.active]="step() === s.n" [class.done]="step() > s.n">
+        <div class="step-circle">{{ step() > s.n ? '✓' : s.n }}</div>
+        <span class="step-label">{{ s.l }}</span>
+      </div>
+      @if (s.n < 3) { <div class="step-line" [class.done]="step() > s.n"></div> }
+    }
+  </div>
+
+  <div class="checkout-layout">
+    <div class="checkout-main">
+
+      <!-- Step 1: Address -->
+      @if (step() === 1) {
+        <div class="checkout-section">
+          <h2>Delivery Address</h2>
+
+          @for (addr of addresses(); track addr.id) {
+            <label class="address-option" [class.selected]="selectedAddressId() === addr.id">
+              <input type="radio" [value]="addr.id" [checked]="selectedAddressId() === addr.id" (change)="selectedAddressId.set(addr.id)" />
+              <div class="address-body">
+                <div class="addr-name">{{ addr.fullName }} <span class="addr-type">{{ addr.addressType }}</span> @if (addr.isDefault) { <span class="addr-default">Default</span> }</div>
+                <div class="addr-line">{{ addr.addressLine1 }}@if (addr.addressLine2) {, {{ addr.addressLine2 }}}</div>
+                <div class="addr-line">{{ addr.city }}, {{ addr.state }} - {{ addr.pincode }}</div>
+                <div class="addr-phone">📞 {{ addr.phone }}</div>
+              </div>
+            </label>
+          }
+
+          <button class="add-address-btn" (click)="showNewAddress.set(!showNewAddress())">
+            + Add New Address
+          </button>
+
+          @if (showNewAddress()) {
+            <form [formGroup]="addressForm" (ngSubmit)="saveAddress()" class="address-form" novalidate>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Full Name</label>
+                  <input type="text" formControlName="fullName" class="form-control" [class.is-invalid]="f.fullName.invalid && f.fullName.touched" placeholder="John Doe" />
+                  @if (f.fullName.invalid && f.fullName.touched) { <span class="form-error">Required.</span> }
+                </div>
+                <div class="form-group">
+                  <label>Phone</label>
+                  <input type="tel" formControlName="phone" class="form-control" [class.is-invalid]="f.phone.invalid && f.phone.touched" placeholder="10-digit mobile" />
+                  @if (f.phone.invalid && f.phone.touched) { <span class="form-error">Valid 10-digit number.</span> }
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Address Line 1</label>
+                <input type="text" formControlName="addressLine1" class="form-control" placeholder="House/Flat No., Street" />
+              </div>
+              <div class="form-group">
+                <label>Address Line 2 (optional)</label>
+                <input type="text" formControlName="addressLine2" class="form-control" placeholder="Area, Landmark" />
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>City</label>
+                  <input type="text" formControlName="city" class="form-control" placeholder="City" />
+                </div>
+                <div class="form-group">
+                  <label>State</label>
+                  <input type="text" formControlName="state" class="form-control" placeholder="State" />
+                </div>
+                <div class="form-group">
+                  <label>Pincode</label>
+                  <input type="text" formControlName="pincode" class="form-control" [class.is-invalid]="f.pincode.invalid && f.pincode.touched" placeholder="6-digit" />
+                  @if (f.pincode.invalid && f.pincode.touched) { <span class="form-error">Valid 6-digit pincode.</span> }
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Type</label>
+                  <select formControlName="addressType" class="form-control">
+                    <option>Home</option><option>Work</option><option>Other</option>
+                  </select>
+                </div>
+                <div class="form-group default-check">
+                  <label class="checkbox-option" style="margin-top:28px">
+                    <input type="checkbox" formControlName="isDefault" />
+                    <span>Set as default</span>
+                  </label>
+                </div>
+              </div>
+              <button type="submit" class="btn-primary" [disabled]="addressForm.invalid">Save Address</button>
+            </form>
+          }
+
+          <button class="btn-primary step-next" [disabled]="!selectedAddressId()" (click)="step.set(2)">Continue to Delivery →</button>
+        </div>
+      }
+
+      <!-- Step 2: Delivery -->
+      @if (step() === 2) {
+        <div class="checkout-section">
+          <h2>Delivery Options</h2>
+          @for (opt of deliveryOptions; track opt.value) {
+            <label class="radio-card" [class.selected]="deliveryOption === opt.value">
+              <input type="radio" [value]="opt.value" [(ngModel)]="deliveryOption" />
+              <div class="radio-card-body">
+                <div class="rc-title">{{ opt.label }}</div>
+                <div class="rc-sub">{{ opt.subtitle }}</div>
+              </div>
+              <div class="rc-price">@if (opt.price === 99 && cart()?.isFreeShipping) { FREE } @else { ₹{{ opt.price }} }</div>
+            </label>
+          }
+          <div class="step-btns">
+            <button class="btn-ghost" (click)="step.set(1)">← Back</button>
+            <button class="btn-primary step-next" (click)="step.set(3)">Continue to Payment →</button>
+          </div>
+        </div>
+      }
+
+      <!-- Step 3: Payment -->
+      @if (step() === 3) {
+        <div class="checkout-section">
+          <h2>Payment Method</h2>
+          @for (opt of paymentOptions; track opt.value) {
+            <label class="radio-card" [class.selected]="paymentMethod === opt.value">
+              <input type="radio" [value]="opt.value" [(ngModel)]="paymentMethod" />
+              <div class="radio-card-body">
+                <div class="rc-title">{{ opt.label }}</div>
+                <div class="rc-sub">{{ opt.subtitle }}</div>
+              </div>
+            </label>
+          }
+          <div class="step-btns">
+            <button class="btn-ghost" (click)="step.set(2)">← Back</button>
+            <button class="btn-primary place-order-btn" [disabled]="placing()" (click)="placeOrder()">
+              @if (placing()) { Processing… } @else { Place Order →  }
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Order Summary -->
+    @if (cart()) {
+      <div class="order-summary">
+        <h3>Order Summary</h3>
+        <div class="summary-items">
+          @for (item of cart()!.items; track item.id) {
+            <div class="summary-item">
+              <img [src]="item.productImage || '/assets/placeholder.svg'" [alt]="item.productName" />
+              <div class="si-info">
+                <span class="si-name">{{ item.productName }}</span>
+                <span class="si-qty">Qty: {{ item.quantity }}</span>
+              </div>
+              <span class="si-price">₹{{ item.totalPrice | number }}</span>
+            </div>
+          }
+        </div>
+        <div class="summary-lines">
+          <div class="sl"><span>Subtotal</span><span>₹{{ cart()!.subtotal | number }}</span></div>
+          @if (cart()!.couponDiscount) { <div class="sl discount"><span>Discount</span><span>−₹{{ cart()!.couponDiscount | number }}</span></div> }
+          <div class="sl"><span>Shipping</span>
+            @if (cart()!.isFreeShipping) { <span class="free">FREE</span> } @else { <span>₹{{ shippingCost }}</span> }
+          </div>
+          <div class="sl"><span>Tax (18%)</span><span>₹{{ cart()!.taxAmount | number }}</span></div>
+          <div class="sl total"><span>Total</span><span>₹{{ cart()!.total | number }}</span></div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

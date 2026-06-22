@@ -1,0 +1,159 @@
+<!-- Hero Banner -->
+<section class="hero">
+  <div class="container hero-inner">
+    <div class="hero-text">
+      <span class="hero-eyebrow">Welcome to ShopVerse</span>
+      <h1 class="hero-headline">
+        Shop the World's<br/>
+        <span class="highlight">Best Products</span>
+      </h1>
+      <p class="hero-sub">Explore millions of products from top brands with free delivery, easy returns, and 24/7 support.</p>
+      <div class="hero-actions">
+        <a routerLink="/products" class="btn-primary btn-lg">Shop Now</a>
+        <a routerLink="/category/electronics" class="btn-secondary btn-lg">Explore Electronics</a>
+      </div>
+      <div class="hero-trust">
+        <span>🚚 Free delivery on ₹499+</span>
+        <span>↩ 30-day returns</span>
+        <span>🔒 Secure checkout</span>
+      </div>
+    </div>
+    <div class="hero-visual" aria-hidden="true">
+      <div class="hero-card hero-card-1">
+        <div class="hc-badge">⚡ Flash Deal</div>
+        <div class="hc-name">Apple iPhone 15 Pro</div>
+        <div class="hc-price">₹1,29,999</div>
+        <div class="hc-discount">15% OFF</div>
+      </div>
+      <div class="hero-card hero-card-2">
+        <div class="hc-badge">🔥 Trending</div>
+        <div class="hc-name">Sony WH-1000XM5</div>
+        <div class="hc-price">₹24,990</div>
+        <div class="hc-discount">20% OFF</div>
+      </div>
+      <div class="hero-orb"></div>
+    </div>
+  </div>
+</section>
+
+<!-- Category Grid -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <h2>Shop by Category</h2>
+      <a routerLink="/products">View all →</a>
+    </div>
+    <div class="category-grid">
+      @for (cat of categories(); track cat.id) {
+        <a [routerLink]="['/category', cat.slug]" class="category-chip">
+          <div class="category-chip-img">
+            @if (cat.imageUrl) {
+              <img [src]="cat.imageUrl" [alt]="cat.name" loading="lazy" />
+            } @else {
+              <span class="cat-placeholder">{{ cat.name[0] }}</span>
+            }
+          </div>
+          <span class="category-chip-name">{{ cat.name }}</span>
+          <span class="category-chip-count">{{ cat.productCount }} items</span>
+        </a>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- Featured Products -->
+<section class="section section-alt">
+  <div class="container">
+    <div class="section-header">
+      <h2>Featured Products</h2>
+      <a routerLink="/products" [queryParams]="{ isFeatured: true }">View all →</a>
+    </div>
+
+    @if (loading()) {
+      <div class="products-grid">
+        @for (s of skeletonItems; track $index) {
+          <div class="product-skeleton">
+            <app-skeleton height="200px" radius="12px" />
+            <div class="skeleton-body">
+              <app-skeleton height="12px" width="60%" />
+              <app-skeleton height="14px" />
+              <app-skeleton height="14px" width="80%" />
+              <app-skeleton height="18px" width="50%" />
+            </div>
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="products-grid">
+        @for (product of featured(); track product.id) {
+          <app-product-card [product]="product" />
+        }
+      </div>
+    }
+  </div>
+</section>
+
+<!-- Promo Banner -->
+<section class="promo-banner">
+  <div class="container promo-inner">
+    <div class="promo-text">
+      <span class="promo-tag">Limited Time</span>
+      <h2>Get 25% off with SUMMER25</h2>
+      <p>Use coupon code at checkout. Valid on all electronics.</p>
+      <a routerLink="/products" [queryParams]="{ categorySlug: 'electronics' }" class="btn-primary">Shop Electronics</a>
+    </div>
+    <div class="promo-visual" aria-hidden="true">
+      <div class="promo-badge">25% OFF</div>
+    </div>
+  </div>
+</section>
+
+<!-- Recently Viewed -->
+@if (recentlyViewed().length > 0) {
+  <section class="section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Recently Viewed</h2>
+      </div>
+      <div class="products-grid">
+        @for (product of recentlyViewed(); track product.id) {
+          <app-product-card [product]="product" />
+        }
+      </div>
+    </div>
+  </section>
+}
+
+<!-- Value Props -->
+<section class="value-props">
+  <div class="container value-props-grid">
+    <div class="value-prop">
+      <span class="vp-icon">🚚</span>
+      <div>
+        <h4>Free Delivery</h4>
+        <p>On all orders above ₹499</p>
+      </div>
+    </div>
+    <div class="value-prop">
+      <span class="vp-icon">↩</span>
+      <div>
+        <h4>Easy Returns</h4>
+        <p>30-day hassle-free returns</p>
+      </div>
+    </div>
+    <div class="value-prop">
+      <span class="vp-icon">🔒</span>
+      <div>
+        <h4>Secure Payment</h4>
+        <p>100% secure via Razorpay</p>
+      </div>
+    </div>
+    <div class="value-prop">
+      <span class="vp-icon">🎧</span>
+      <div>
+        <h4>24/7 Support</h4>
+        <p>Always here to help you</p>
+      </div>
+    </div>
+  </div>
+</section>

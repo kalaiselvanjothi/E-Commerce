@@ -1,0 +1,113 @@
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-header">
+      <a routerLink="/" class="auth-logo">
+        <span class="logo-icon">SV</span>
+        <span class="logo-text">ShopVerse</span>
+      </a>
+      <h1 class="auth-title">Create your account</h1>
+      <p class="auth-subtitle">Join millions of shoppers on ShopVerse</p>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="auth-form" novalidate>
+
+      <div class="name-row">
+        <div class="form-group">
+          <label for="firstName">First name</label>
+          <input id="firstName" type="text" formControlName="firstName"
+            class="form-control" [class.is-invalid]="f.firstName.invalid && f.firstName.touched"
+            placeholder="John" autocomplete="given-name" />
+          @if (f.firstName.invalid && f.firstName.touched) {
+            <span class="form-error">Min 2 characters.</span>
+          }
+        </div>
+        <div class="form-group">
+          <label for="lastName">Last name</label>
+          <input id="lastName" type="text" formControlName="lastName"
+            class="form-control" [class.is-invalid]="f.lastName.invalid && f.lastName.touched"
+            placeholder="Doe" autocomplete="family-name" />
+          @if (f.lastName.invalid && f.lastName.touched) {
+            <span class="form-error">Min 2 characters.</span>
+          }
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email address</label>
+        <div class="input-wrapper">
+          <svg class="input-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+          </svg>
+          <input id="email" type="email" formControlName="email"
+            class="form-control has-icon" [class.is-invalid]="f.email.invalid && f.email.touched"
+            placeholder="you@example.com" autocomplete="email" />
+        </div>
+        @if (f.email.invalid && f.email.touched) {
+          <span class="form-error">
+            @if (f.email.errors?.['required']) { Email is required. }
+            @else { Enter a valid email. }
+          </span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <div class="input-wrapper">
+          <svg class="input-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+          <input id="password" [type]="showPassword() ? 'text' : 'password'"
+            formControlName="password"
+            class="form-control has-icon has-icon-right"
+            [class.is-invalid]="f.password.invalid && f.password.touched"
+            placeholder="Min 8 chars, 1 uppercase, 1 number, 1 special"
+            autocomplete="new-password" />
+          <button type="button" class="input-icon-right" (click)="showPassword.set(!showPassword())">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+        @if (f.password.invalid && f.password.touched) {
+          <span class="form-error">
+            @if (f.password.errors?.['required']) { Password is required. }
+            @else if (f.password.errors?.['minlength']) { Min 8 characters. }
+            @else { Must include uppercase, number, and special character. }
+          </span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="confirmPassword">Confirm password</label>
+        <input id="confirmPassword" type="password" formControlName="confirmPassword"
+          class="form-control"
+          [class.is-invalid]="(f.confirmPassword.touched && f.confirmPassword.invalid) || passwordMismatch"
+          placeholder="Repeat your password"
+          autocomplete="new-password" />
+        @if (passwordMismatch) {
+          <span class="form-error">Passwords do not match.</span>
+        }
+      </div>
+
+      <button type="submit" class="btn-primary btn-full" [disabled]="loading()">
+        @if (loading()) { <span class="btn-spinner"></span> Creating account… }
+        @else { Create Account }
+      </button>
+    </form>
+
+    <p class="auth-switch">
+      Already have an account? <a routerLink="/auth/login">Sign in</a>
+    </p>
+  </div>
+
+  <div class="auth-visual" aria-hidden="true">
+    <div class="visual-content">
+      <h2>Everything You<br/>Need, Delivered</h2>
+      <p>From electronics to fashion — shop the world's best products with free returns and 24/7 support.</p>
+      <ul class="feature-list">
+        <li>✓ Free delivery on orders over ₹499</li>
+        <li>✓ Easy 30-day returns</li>
+        <li>✓ Secure payments via Razorpay</li>
+        <li>✓ 24/7 customer support</li>
+      </ul>
+    </div>
+  </div>
+</div>

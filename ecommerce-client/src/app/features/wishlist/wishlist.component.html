@@ -1,0 +1,60 @@
+<div class="container py-8">
+  <h1 class="page-title">My Wishlist</h1>
+
+  @if (loading()) {
+    <div class="wish-grid">
+      @for (i of [1,2,3,4,5,6]; track i) {
+        <div class="wish-skeleton">
+          <div class="skeleton" style="height:200px;border-radius:12px 12px 0 0"></div>
+          <div style="padding:12px;display:flex;flex-direction:column;gap:8px">
+            <div class="skeleton" style="height:12px;width:50%"></div>
+            <div class="skeleton" style="height:14px"></div>
+            <div class="skeleton" style="height:18px;width:40%"></div>
+          </div>
+        </div>
+      }
+    </div>
+  } @else if (!items().length) {
+    <app-empty-state icon="❤️" title="Your wishlist is empty" description="Save items you love by tapping the heart icon." actionLabel="Browse Products" actionLink="/products" />
+  } @else {
+    <p class="item-count">{{ items().length }} item{{ items().length === 1 ? '' : 's' }}</p>
+    <div class="wish-grid">
+      @for (item of items(); track item.id) {
+        <div class="wish-card">
+          <a [routerLink]="['/products', item.productSlug]" class="wish-image">
+            <img [src]="item.productImage || '/assets/placeholder.svg'" [alt]="item.productName" loading="lazy" />
+            @if (item.discountPercent) {
+              <span class="wish-badge">{{ item.discountPercent }}% OFF</span>
+            }
+          </a>
+          <div class="wish-body">
+            <span class="wish-brand">{{ item.brand }}</span>
+            <a [routerLink]="['/products', item.productSlug]" class="wish-name">{{ item.productName }}</a>
+            <app-star-rating [rating]="item.averageRating" />
+            <div class="wish-price">
+              <span class="price-current">₹{{ item.price | number }}</span>
+              @if (item.compareAtPrice) {
+                <span class="price-original">₹{{ item.compareAtPrice | number }}</span>
+              }
+            </div>
+            @if (item.stock === 0) {
+              <span class="oos-label">Out of Stock</span>
+            }
+          </div>
+          <div class="wish-actions">
+            <button
+              class="btn-primary btn-full"
+              [disabled]="item.stock === 0 || movingId() === item.productId"
+              (click)="moveToCart(item.productId)"
+            >
+              @if (movingId() === item.productId) { Moving… } @else { Move to Cart }
+            </button>
+            <button class="btn-ghost remove-wish" (click)="remove(item.productId)">
+              Remove
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

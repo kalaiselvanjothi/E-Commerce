@@ -1,0 +1,89 @@
+@use '../../../../styles/mixins' as mx;
+
+.py-10 { padding-top: var(--space-8); padding-bottom: var(--space-12); }
+
+.list-layout {
+  display: grid; grid-template-columns: 1fr;
+  gap: var(--space-6);
+  @include mx.lg { grid-template-columns: 240px 1fr; align-items: start; }
+}
+
+// ─── Sidebar ──────────────────────────────────────────────────────────────────
+.filters-sidebar {
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg); padding: var(--space-5);
+  position: sticky; top: calc(var(--header-height) + var(--space-4));
+
+  @include mx.max-lg {
+    position: fixed; inset: 0; z-index: var(--z-modal);
+    overflow-y: auto; transform: translateX(-100%);
+    transition: transform var(--transition-base);
+    border-radius: 0; width: 280px;
+    &.open { transform: translateX(0); box-shadow: var(--shadow-xl); }
+  }
+}
+
+.sidebar-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: var(--space-5); padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+  h3 { font-size: var(--text-base); font-weight: var(--font-bold); }
+}
+
+.close-btn {
+  background: none; border: none; cursor: pointer; font-size: 18px;
+  color: var(--color-text-muted); padding: 4px; border-radius: var(--radius-sm);
+  @include mx.lg { display: none; }
+  &:hover { background: var(--color-surface-2); }
+}
+
+.filter-section { margin-bottom: var(--space-5); padding-bottom: var(--space-5); border-bottom: 1px solid var(--color-border); }
+.filter-label { font-size: var(--text-xs); font-weight: var(--font-semibold); color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: var(--space-3); }
+
+.price-inputs { display: flex; align-items: center; gap: var(--space-2); span { color: var(--color-text-muted); } .form-control { padding: 8px var(--space-3); } }
+
+.rating-options { display: flex; flex-direction: column; gap: var(--space-2); }
+.radio-option, .checkbox-option {
+  display: flex; align-items: center; gap: var(--space-2); cursor: pointer;
+  font-size: var(--text-sm); color: var(--color-text-secondary);
+  input { accent-color: var(--color-primary); }
+  &:hover span { color: var(--color-text-primary); }
+}
+
+.filter-actions { display: flex; flex-direction: column; gap: var(--space-2); margin-top: var(--space-4); }
+
+// ─── Toolbar ──────────────────────────────────────────────────────────────────
+.toolbar {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: var(--space-3);
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: var(--radius-md); padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.toolbar-left, .toolbar-right { display: flex; align-items: center; gap: var(--space-3); }
+
+.filter-toggle {
+  display: flex; align-items: center; gap: var(--space-2);
+  background: var(--color-surface-2); border: 1px solid var(--color-border);
+  border-radius: var(--radius-md); padding: 7px var(--space-3);
+  font-size: var(--text-sm); font-weight: var(--font-medium);
+  color: var(--color-text-secondary); cursor: pointer;
+  transition: all var(--transition-fast);
+  &:hover { border-color: var(--color-primary); color: var(--color-primary); }
+  @include mx.lg { display: none; }
+}
+
+.results-count { font-size: var(--text-sm); color: var(--color-text-muted); }
+
+.sort-select {
+  border: 1px solid var(--color-border); border-radius: var(--radius-md);
+  padding: 7px var(--space-3); font-size: var(--text-sm);
+  color: var(--color-text-secondary); background: var(--color-surface);
+  cursor: pointer; outline: none;
+  &:focus { border-color: var(--color-primary); }
+}
+
+// ─── Product Skeleton ─────────────────────────────────────────────────────────
+.product-skeleton { border-radius: var(--radius-lg); overflow: hidden; background: var(--color-surface); border: 1px solid var(--color-border); }
+.skeleton-body { padding: var(--space-3); display: flex; flex-direction: column; gap: var(--space-2); }

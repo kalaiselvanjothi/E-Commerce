@@ -1,0 +1,121 @@
+<div class="container py-8">
+  @if (loading()) {
+    <div class="skeleton" style="height:400px;border-radius:16px"></div>
+  } @else if (order()) {
+    <div class="detail-header">
+      <a routerLink="/account/orders" class="back-link">← My Orders</a>
+      <div class="header-row">
+        <div>
+          <h1 class="order-num">{{ order()!.orderNumber }}</h1>
+          <span class="order-date">Placed on {{ order()!.createdAt | date:'longDate' }}</span>
+        </div>
+        <span class="status-pill status-{{ order()!.status.toLowerCase() }}">{{ order()!.status }}</span>
+      </div>
+    </div>
+
+    <div class="order-layout">
+      <div class="order-left">
+        <!-- Status Timeline -->
+        <div class="timeline-card">
+          <h3>Order Timeline</h3>
+          <div class="timeline">
+            @for (h of order()!.statusHistory; track h.createdAt; let last = $last) {
+              <div class="tl-item" [class.latest]="last">
+                <div class="tl-dot"></div>
+                <div class="tl-content">
+                  <div class="tl-status">{{ h.status }}</div>
+                  @if (h.note) { <div class="tl-note">{{ h.note }}</div> }
+                  <div class="tl-date">{{ h.createdAt | date:'medium' }}</div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Items -->
+        <div class="items-card">
+          <h3>Items ({{ order()!.items.length }})</h3>
+          @for (item of order()!.items; track item.id) {
+            <div class="order-item">
+              <img [src]="item.productImage || '/assets/placeholder.svg'" [alt]="item.productName" />
+              <div class="item-info">
+                <a [routerLink]="['/products', item.productSlug]" class="item-name">{{ item.productName }}</a>
+                <span class="item-brand">{{ item.brand }}</span>
+                @if (item.variantName) { <span class="item-variant">{{ item.variantName }}</span> }
+                <span class="item-qty">Qty: {{ item.quantity }} × ₹{{ item.unitPrice | number }}</span>
+              </div>
+              <span class="item-total">₹{{ item.totalPrice | number }}</span>
+            </div>
+          }
+        </div>
+
+        <!-- Actions -->
+        @if (canCancel || canReturn) {
+          <div class="actions-card">
+            @if (canCancel) {
+              <button class="btn-danger" (click)="showCancel.set(true)">Cancel Order</button>
+            }
+            @if (canReturn) {
+              <button class="btn-secondary" (click)="showReturn.set(true)">Request Return</button>
+            }
+          </div>
+        }
+
+        <!-- Cancel Modal -->
+        @if (showCancel()) {
+          <div class="modal-overlay" (click)="showCancel.set(false)">
+            <div class="modal-box" (click)="$event.stopPropagation()">
+              <h3>Cancel Order</h3>
+              <textarea class="form-control" [(ngModel)]="cancelReason" rows="3" placeholder="Reason for cancellation..." style="margin:12px 0"></textarea>
+              <div class="modal-btns">
+                <button class="btn-ghost" (click)="showCancel.set(false)">Back</button>
+                <button class="btn-danger" [disabled]="!cancelReason.trim()" (click)="cancel()">Confirm Cancel</button>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Return Modal -->
+        @if (showReturn()) {
+          <div class="modal-overlay" (click)="showReturn.set(false)">
+            <div class="modal-box" (click)="$event.stopPropagation()">
+              <h3>Return Request</h3>
+              <textarea class="form-control" [(ngModel)]="returnReason" rows="3" placeholder="Reason for return..." style="margin:12px 0"></textarea>
+              <div class="modal-btns">
+                <button class="btn-ghost" (click)="showReturn.set(false)">Back</button>
+                <button class="btn-primary" [disabled]="!returnReason.trim()" (click)="returnOrder()">Submit Return</button>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Right: Summary + Address -->
+      <div class="order-right">
+        <div class="summary-card">
+          <h3>Payment Summary</h3>
+          <div class="sl"><span>Subtotal</span><span>₹{{ order()!.subtotal | number }}</span></div>
+          @if (order()!.discount > 0) { <div class="sl disc"><span>Discount</span><span>−₹{{ order()!.discount | number }}</span></div> }
+          <div class="sl"><span>Shipping</span><span>₹{{ order()!.shippingCost | number }}</span></div>
+          <div class="sl"><span>Tax</span><span>₹{{ order()!.taxAmount | number }}</span></div>
+          <div class="sl total"><span>Total</span><span>₹{{ order()!.total | number }}</span></div>
+          <div class="payment-info">
+            <span>Payment: <strong>{{ order()!.paymentMethod }}</strong></span>
+            <span class="pay-status" [class.paid]="order()!.paymentStatus === 'Paid'">{{ order()!.paymentStatus }}</span>
+          </div>
+        </div>
+
+        <div class="address-card">
+          <h3>Delivery Address</h3>
+          <div class="addr-name">{{ order()!.shippingAddress.fullName }}</div>
+          <div class="addr-line">{{ order()!.shippingAddress.addressLine1 }}</div>
+          @if (order()!.shippingAddress.addressLine2) {
+            <div class="addr-line">{{ order()!.shippingAddress.addressLine2 }}</div>
+          }
+          <div class="addr-line">{{ order()!.shippingAddress.city }}, {{ order()!.shippingAddress.state }} - {{ order()!.shippingAddress.pincode }}</div>
+          <div class="addr-phone">📞 {{ order()!.shippingAddress.phone }}</div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

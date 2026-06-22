@@ -1,0 +1,118 @@
+<div class="dashboard">
+  <h1 class="page-title">Dashboard</h1>
+
+  @if (loading()) {
+    <div class="stats-grid">
+      @for (i of [1,2,3,4]; track i) {
+        <div class="skeleton" style="height:100px;border-radius:16px"></div>
+      }
+    </div>
+  } @else if (stats()) {
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon revenue">₹</div>
+        <div class="stat-info">
+          <div class="stat-value">₹{{ stats()!.totalRevenue | number }}</div>
+          <div class="stat-label">Total Revenue</div>
+          <div class="stat-change" [class.up]="stats()!.revenueChange >= 0">{{ change(stats()!.revenueChange) }} vs last month</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon orders">🛍️</div>
+        <div class="stat-info">
+          <div class="stat-value">{{ stats()!.totalOrders | number }}</div>
+          <div class="stat-label">Total Orders</div>
+          <div class="stat-change" [class.up]="stats()!.ordersChange >= 0">{{ change(stats()!.ordersChange) }}</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon customers">👥</div>
+        <div class="stat-info">
+          <div class="stat-value">{{ stats()!.totalCustomers | number }}</div>
+          <div class="stat-label">Customers</div>
+          <div class="stat-change" [class.up]="stats()!.customersChange >= 0">{{ change(stats()!.customersChange) }}</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon pending">⏳</div>
+        <div class="stat-info">
+          <div class="stat-value">{{ stats()!.pendingOrders }}</div>
+          <div class="stat-label">Pending Orders</div>
+          <div class="stat-sub">Requires attention</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Revenue Chart (simple bar) -->
+    <div class="chart-grid">
+      <div class="chart-card">
+        <h3>Revenue (Last 30 days)</h3>
+        <div class="bar-chart">
+          @for (pt of stats()!.revenueChart; track pt.date) {
+            <div class="bar-wrap" [title]="pt.date + ': ₹' + pt.value">
+              <div class="bar" [style.height.%]="(pt.value / maxRevenue()) * 100"></div>
+            </div>
+          }
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>Orders (Last 30 days)</h3>
+        <div class="bar-chart">
+          @for (pt of stats()!.ordersChart; track pt.date) {
+            <div class="bar-wrap orders-bar" [title]="pt.date + ': ' + pt.value + ' orders'">
+              <div class="bar" [style.height.%]="(pt.value / maxOrders()) * 100"></div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Grid -->
+    <div class="bottom-grid">
+      <!-- Top Products -->
+      <div class="table-card">
+        <div class="table-header">
+          <h3>Top Products</h3>
+          <a routerLink="/admin/products" class="view-all">View all →</a>
+        </div>
+        <table class="data-table">
+          <thead><tr><th>Product</th><th>Sold</th><th>Revenue</th></tr></thead>
+          <tbody>
+            @for (p of stats()!.topProducts; track p.id) {
+              <tr>
+                <td class="product-cell">
+                  <img [src]="p.imageUrl || '/assets/placeholder.svg'" [alt]="p.name" class="prod-thumb" />
+                  <span>{{ p.name }}</span>
+                </td>
+                <td>{{ p.totalSold }}</td>
+                <td>₹{{ p.revenue | number }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Recent Orders -->
+      <div class="table-card">
+        <div class="table-header">
+          <h3>Recent Orders</h3>
+          <a routerLink="/admin/orders" class="view-all">View all →</a>
+        </div>
+        <table class="data-table">
+          <thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th></tr></thead>
+          <tbody>
+            @for (o of stats()!.recentOrders; track o.id) {
+              <tr>
+                <td class="mono">{{ o.orderNumber }}</td>
+                <td>{{ o.customerName }}</td>
+                <td>₹{{ o.total | number }}</td>
+                <td><span class="status-chip status-{{ o.status.toLowerCase() }}">{{ o.status }}</span></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>

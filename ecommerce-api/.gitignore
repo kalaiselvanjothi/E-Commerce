@@ -1,0 +1,23 @@
+## .NET gitignore
+bin/
+obj/
+*.user
+*.suo
+.vs/
+.vscode/
+appsettings.Development.json
+
+# NuGet
+*.nupkg
+packages/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# IDE
+*.userprefs
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
