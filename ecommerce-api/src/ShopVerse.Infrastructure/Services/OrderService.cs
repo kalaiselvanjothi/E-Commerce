@@ -430,12 +430,7 @@ public class OrderService : IOrderService
     private static OrderListDto ToListDto(Order o)
     {
         var payment = o.Payments.OrderByDescending(p => p.CreatedAt).FirstOrDefault();
-        var isPaid  = payment?.Status == PaymentStatus.Completed
-                   || o.Status == OrderStatus.Confirmed
-                   || o.Status == OrderStatus.Packed
-                   || o.Status == OrderStatus.Shipped
-                   || o.Status == OrderStatus.OutForDelivery
-                   || o.Status == OrderStatus.Delivered;
+        var isPaid  = payment?.Status == PaymentStatus.Completed || o.Payments.Any(p => p.Status == PaymentStatus.Completed);
 
         return new()
         {
@@ -443,7 +438,7 @@ public class OrderService : IOrderService
             OrderNumber   = o.OrderNumber,
             Status        = o.Status.ToString(),
             PaymentStatus = isPaid ? "Completed" : (payment?.Status.ToString() ?? "Pending"),
-            PaymentMethod = payment?.Method.ToString() ?? "Online Payment",
+            PaymentMethod = payment?.Method.ToString() ?? "COD",
             Total         = o.TotalAmount,
             ItemCount     = o.Items.Count,
             PrimaryImage  = o.Items.FirstOrDefault()?.ProductThumbnail,
@@ -454,12 +449,7 @@ public class OrderService : IOrderService
     private static OrderDetailDto ToDetailDto(Order o)
     {
         var payment = o.Payments.OrderByDescending(p => p.CreatedAt).FirstOrDefault();
-        var isPaid  = payment?.Status == PaymentStatus.Completed
-                   || o.Status == OrderStatus.Confirmed
-                   || o.Status == OrderStatus.Packed
-                   || o.Status == OrderStatus.Shipped
-                   || o.Status == OrderStatus.OutForDelivery
-                   || o.Status == OrderStatus.Delivered;
+        var isPaid  = payment?.Status == PaymentStatus.Completed || o.Payments.Any(p => p.Status == PaymentStatus.Completed);
 
         return new()
         {
@@ -467,7 +457,7 @@ public class OrderService : IOrderService
             OrderNumber    = o.OrderNumber,
             Status         = o.Status.ToString(),
             PaymentStatus  = isPaid ? "Completed" : (payment?.Status.ToString() ?? "Pending"),
-            PaymentMethod  = payment?.Method.ToString() ?? "Online Payment",
+            PaymentMethod  = payment?.Method.ToString() ?? "COD",
             DeliveryOption = o.DeliveryOption.ToString(),
             Subtotal       = o.SubTotal,
             ShippingCost   = o.ShippingAmount,

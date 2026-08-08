@@ -92,12 +92,7 @@ public class PdfInvoiceService : IInvoiceService
 
                         row.RelativeItem().Column(payCol =>
                         {
-                            var isPaid = payment?.Status == Domain.Enums.PaymentStatus.Completed
-                                      || order.Status == Domain.Enums.OrderStatus.Confirmed
-                                      || order.Status == Domain.Enums.OrderStatus.Packed
-                                      || order.Status == Domain.Enums.OrderStatus.Shipped
-                                      || order.Status == Domain.Enums.OrderStatus.OutForDelivery
-                                      || order.Status == Domain.Enums.OrderStatus.Delivered;
+                            var isPaid = payment?.Status == Domain.Enums.PaymentStatus.Completed || order.Payments.Any(p => p.Status == Domain.Enums.PaymentStatus.Completed);
 
                             payCol.Item().Text("PAYMENT INFORMATION").FontSize(9).Bold().FontColor(Colors.Grey.Medium);
                             payCol.Item().Text($"Method: {payment?.Method.ToString() ?? "Online Payment / Razorpay"}").Bold();
