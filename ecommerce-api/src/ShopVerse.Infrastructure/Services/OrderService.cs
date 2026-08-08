@@ -265,6 +265,7 @@ public class OrderService : IOrderService
             .Include(o => o.ShippingAddress)
             .Include(o => o.User)
             .Include(o => o.StatusHistory)
+            .Include(o => o.Payments)
             .FirstOrDefaultAsync(o => o.OrderNumber.ToLower() == cleanId.ToLower()
                                    || o.Id.ToString().ToLower() == cleanId.ToLower());
 
@@ -311,12 +312,7 @@ public class OrderService : IOrderService
             });
         }
 
-        var isPaid = order.Payments.Any(p => p.Status == PaymentStatus.Completed)
-                  || order.Status == OrderStatus.Confirmed
-                  || order.Status == OrderStatus.Packed
-                  || order.Status == OrderStatus.Shipped
-                  || order.Status == OrderStatus.OutForDelivery
-                  || order.Status == OrderStatus.Delivered;
+        var isPaid = order.Payments.Any(p => p.Status == PaymentStatus.Completed);
 
         return new OrderTrackResultDto
         {
