@@ -6,10 +6,11 @@
 }
 
 .track-container {
-  max-width: 920px;
+  max-width: 1040px !important;
   width: 100%;
   margin-left: auto;
   margin-right: auto;
+  padding: 0 16px;
 }
 
 // Breadcrumb
@@ -263,10 +264,12 @@
   grid-template-columns: 1fr;
   gap: 24px;
   margin-top: 32px;
+  width: 100%;
 
   @include mx.md {
-    grid-template-columns: 1.15fr 0.85fr;
+    grid-template-columns: 1fr 1fr;
     gap: 28px;
+    align-items: stretch;
   }
 }
 
@@ -274,8 +277,12 @@
   background: #F8FAFC;
   border: 1px solid #E2E8F0;
   border-radius: 18px;
-  padding: 24px 28px;
+  padding: 28px 32px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
 }
 
 :host-context([data-theme='dark']) .details-card {

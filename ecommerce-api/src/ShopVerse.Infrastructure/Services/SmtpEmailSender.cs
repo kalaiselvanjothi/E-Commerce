@@ -40,6 +40,12 @@ public class SmtpEmailSender : IEmailSender
 
         if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
         {
+            if (_config["ASPNETCORE_ENVIRONMENT"] == "Production")
+            {
+                _logger.LogError("[SMTP PRODUCTION ERROR] Cannot send email to {ToEmail}. SMTP credentials (Username/Password) are missing in Production configuration.", toEmail);
+                throw new InvalidOperationException("SMTP credentials are not configured in Production environment.");
+            }
+
             _logger.LogWarning("[SMTP DEV MODE] Email to {ToEmail} skipped because SMTP credentials are not configured in appsettings.json.", toEmail);
             return;
         }

@@ -98,14 +98,30 @@ public static class ServiceExtensions
         return services;
     }
 
-    public static IServiceCollection AddCorsPolicy(this IServiceCollection services)
+    public static IServiceCollection AddCorsPolicy(this IServiceCollection services, IConfiguration config)
     {
+        var origins = config.GetSection("Cors:AllowedOrigins").Get<string[]>()
+            ?? new[] { config["ClientUrl"] ?? "http://localhost:4200" };
+
         services.AddCors(opts =>
             opts.AddPolicy("AllowAngular", policy =>
-                policy.SetIsOriginAllowed(_ => true)
-                      .AllowAnyHeader()
-                      .AllowAnyMethod()
-                      .AllowCredentials()));
+            {
+                var allowedOrigins = origins.Where(o => !string.IsNullOrWhiteSpace(o)).ToArray();
+                if (allowedOrigins.Length > 0 && config["ASPNETCORE_ENVIRONMENT"] == "Production")
+                {
+                    policy.WithOrigins(allowedOrigins)
+                          .AllowAnyHeader()
+                          .AllowAnyMethod()
+                          .AllowCredentials();
+                }
+                else
+                {
+                    policy.SetIsOriginAllowed(_ => true)
+                          .AllowAnyHeader()
+                          .AllowAnyMethod()
+                          .AllowCredentials();
+                }
+            }));
         return services;
     }
 

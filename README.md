@@ -1,7 +1,7 @@
 # 🛒 ShopVerse — Premium Full-Stack E-Commerce Platform
 
 [![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-8.0-512BD4?logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/)
-[![Angular](https://img.shields.io/badge/Angular-18-DD0031?logo=angular&logoColor=white)](https://angular.dev/)
+[![Angular](https://img.shields.io/badge/Angular-22-DD0031?logo=angular&logoColor=white)](https://angular.dev/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Entity Framework Core](https://img.shields.io/badge/EF%20Core-8.0-512BD4?logo=dotnet&logoColor=white)](https://learn.microsoft.com/en-us/ef/core/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -69,7 +69,7 @@
 - **API Documentation**: Swagger / OpenAPI
 
 ### Frontend Architecture
-- **Framework**: Angular 18 (Standalone Components, Signals, Reactive Forms)
+- **Framework**: Angular 22 (Standalone Components, Signals, Reactive Forms)
 - **State Management**: Angular Signals & RxJS Observables
 - **Styling**: Vanilla SCSS with custom design system tokens, CSS variables & mixins
 - **Routing**: Angular Router with lazy loading, route guards, and query param preloading
