@@ -70,3 +70,37 @@ public class ShippingAddressDto
     public string Pincode { get; set; } = string.Empty;
     public string Country { get; set; } = string.Empty;
 }
+
+public class OrderTrackResultDto
+{
+    public string OrderId { get; set; } = string.Empty;
+    public string OrderDate { get; set; } = string.Empty;
+    public string CustomerName { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string Status { get; set; } = string.Empty;
+    public string PaymentStatus { get; set; } = "Completed";
+    public int CurrentStep { get; set; }
+    public string EstimatedDeliveryDate { get; set; } = string.Empty;
+    public string CourierName { get; set; } = "BlueDart Express";
+    public string TrackingNumber { get; set; } = string.Empty;
+    public string ShippingAddress { get; set; } = string.Empty;
+    public List<TrackItemDto> Items { get; set; } = new();
+    public List<TimelineStepDto> Timeline { get; set; } = new();
+}
+
+public class TrackItemDto
+{
+    public string Name { get; set; } = string.Empty;
+    public int Quantity { get; set; }
+    public decimal Price { get; set; }
+    public string Image { get; set; } = string.Empty;
+}
+
+public class TimelineStepDto
+{
+    public string Step { get; set; } = string.Empty;
+    public string Timestamp { get; set; } = string.Empty;
+    public string Location { get; set; } = string.Empty;
+    public bool Completed { get; set; }
+    public bool Current { get; set; }
+}

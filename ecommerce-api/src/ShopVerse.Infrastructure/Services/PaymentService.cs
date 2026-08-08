@@ -143,14 +143,24 @@ public class PaymentService : IPaymentService
             payment.Status            = PaymentStatus.Completed;
             payment.PaidAt            = DateTime.UtcNow;
 
-            order.Status = Domain.Enums.OrderStatus.Confirmed;
-            order.StatusHistory.Add(new Domain.Entities.OrderStatusHistory
+            foreach (var p in order.Payments)
             {
-                OrderId   = order.Id,
-                Status    = Domain.Enums.OrderStatus.Confirmed,
-                Comment   = $"Payment successful (ID: {dto.RazorpayPaymentId})",
-                ChangedAt = DateTime.UtcNow
-            });
+                p.Status = PaymentStatus.Completed;
+                p.PaidAt = DateTime.UtcNow;
+                if (!string.IsNullOrEmpty(dto.RazorpayPaymentId)) p.RazorpayPaymentId = dto.RazorpayPaymentId;
+            }
+
+            order.Status = Domain.Enums.OrderStatus.Confirmed;
+            if (!order.StatusHistory.Any(h => h.Status == Domain.Enums.OrderStatus.Confirmed))
+            {
+                order.StatusHistory.Add(new Domain.Entities.OrderStatusHistory
+                {
+                    OrderId   = order.Id,
+                    Status    = Domain.Enums.OrderStatus.Confirmed,
+                    Comment   = $"Payment successful (ID: {dto.RazorpayPaymentId})",
+                    ChangedAt = DateTime.UtcNow
+                });
+            }
         }
 
         await _context.SaveChangesAsync();

@@ -92,9 +92,16 @@ public class PdfInvoiceService : IInvoiceService
 
                         row.RelativeItem().Column(payCol =>
                         {
+                            var isPaid = payment?.Status == Domain.Enums.PaymentStatus.Completed
+                                      || order.Status == Domain.Enums.OrderStatus.Confirmed
+                                      || order.Status == Domain.Enums.OrderStatus.Packed
+                                      || order.Status == Domain.Enums.OrderStatus.Shipped
+                                      || order.Status == Domain.Enums.OrderStatus.OutForDelivery
+                                      || order.Status == Domain.Enums.OrderStatus.Delivered;
+
                             payCol.Item().Text("PAYMENT INFORMATION").FontSize(9).Bold().FontColor(Colors.Grey.Medium);
-                            payCol.Item().Text($"Method: {payment?.Method.ToString() ?? "Cash on Delivery"}").Bold();
-                            payCol.Item().Text($"Status: {payment?.Status.ToString() ?? "Pending"}").FontColor(payment?.Status == Domain.Enums.PaymentStatus.Completed ? Colors.Green.Medium : Colors.Orange.Medium);
+                            payCol.Item().Text($"Method: {payment?.Method.ToString() ?? "Online Payment / Razorpay"}").Bold();
+                            payCol.Item().Text($"Status: {(isPaid ? "Completed (Success)" : "Pending")}").Bold().FontColor(isPaid ? Colors.Green.Medium : Colors.Orange.Medium);
                             if (!string.IsNullOrEmpty(payment?.RazorpayPaymentId))
                                 payCol.Item().Text($"Payment ID: {payment.RazorpayPaymentId}").FontSize(8);
                         });

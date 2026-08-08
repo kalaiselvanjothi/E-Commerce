@@ -11,6 +11,7 @@ export interface OrderTrackResult {
   customerName: string;
   email: string;
   status: string;
+  paymentStatus?: string;
   currentStep: number;
   estimatedDeliveryDate: string;
   courierName: string;

@@ -10,6 +10,7 @@ public interface IOrderService
     Task<OrderDetailDto> GetOrderDetailAsync(Guid userId, Guid orderId);
     Task<OrderDetailDto> CancelOrderAsync(Guid userId, Guid orderId, string reason);
     Task<OrderDetailDto> RequestReturnAsync(Guid userId, Guid orderId, string reason);
+    Task<OrderTrackResultDto?> TrackOrderAsync(string orderId, string? email = null);
     // Admin
     Task<PagedResult<OrderListDto>> GetAllOrdersAsync(int page, int pageSize, string? status = null);
     Task<OrderDetailDto> UpdateOrderStatusAsync(Guid orderId, UpdateOrderStatusDto dto);

@@ -1,5 +1,5 @@
 <div class="track-page py-10">
-  <div class="container max-w-md mx-auto">
+  <div class="container track-container mx-auto">
 
     <!-- ── Breadcrumb Navigation ────────────────────────── -->
     <nav class="breadcrumb-nav mb-4" aria-label="Breadcrumb">
@@ -98,6 +98,9 @@
           <div class="result-header-right">
             <span class="status-badge" [class.status-delivery]="res.currentStep >= 5" [class.status-packed]="res.currentStep === 3">
               {{ res.status }}
+            </span>
+            <span class="status-badge status-paid">
+              Payment: {{ res.paymentStatus || 'Completed' }}
             </span>
             <div class="result-est-date">Est. Delivery: {{ res.estimatedDeliveryDate | date:'mediumDate' }}</div>
           </div>

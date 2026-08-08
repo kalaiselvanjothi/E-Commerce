@@ -22,6 +22,22 @@ public class OrdersController : ControllerBase
         _invoiceService = invoiceService;
     }
 
+    /// <summary>Track order logistics status (Public / Anonymous)</summary>
+    [HttpGet("track")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(OrderTrackResultDto), 200)]
+    public async Task<IActionResult> TrackOrder([FromQuery] string orderId, [FromQuery] string? email = null)
+    {
+        if (string.IsNullOrWhiteSpace(orderId))
+            return BadRequest(ApiResponse<string>.Fail("Order ID is required."));
+
+        var result = await _orderService.TrackOrderAsync(orderId, email);
+        if (result == null)
+            return NotFound(ApiResponse<string>.Fail($"No order found matching '{orderId}'."));
+
+        return Ok(result);
+    }
+
     /// <summary>Generate and download professional PDF tax invoice</summary>
     [HttpGet("{id:guid}/invoice")]
     [ProducesResponseType(typeof(FileResult), 200)]

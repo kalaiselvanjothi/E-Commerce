@@ -257,6 +257,91 @@ public class OrderService : IOrderService
         return await GetOrderDetailAsync(userId, orderId);
     }
 
+    public async Task<OrderTrackResultDto?> TrackOrderAsync(string orderId, string? email = null)
+    {
+        var cleanId = orderId.Trim();
+        var order = await _context.Orders
+            .Include(o => o.Items).ThenInclude(i => i.Product)
+            .Include(o => o.ShippingAddress)
+            .Include(o => o.User)
+            .Include(o => o.StatusHistory)
+            .FirstOrDefaultAsync(o => o.OrderNumber.ToLower() == cleanId.ToLower()
+                                   || o.Id.ToString().ToLower() == cleanId.ToLower());
+
+        if (order == null) return null;
+
+        if (!string.IsNullOrWhiteSpace(email) && !string.Equals(order.User?.Email, email.Trim(), StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
+        int currentStep = order.Status switch
+        {
+            OrderStatus.Placed           => 1,
+            OrderStatus.Confirmed        => 2,
+            OrderStatus.Packed           => 3,
+            OrderStatus.Shipped          => 4,
+            OrderStatus.OutForDelivery   => 5,
+            OrderStatus.Delivered        => 6,
+            _                            => 1
+        };
+
+        var addr = order.ShippingAddress != null
+            ? $"{order.ShippingAddress.FullName}, {order.ShippingAddress.Line1}, {order.ShippingAddress.City}, {order.ShippingAddress.State} - {order.ShippingAddress.PostalCode}"
+            : "Customer Shipping Address";
+
+        var timeline = order.StatusHistory.OrderBy(h => h.ChangedAt).Select((h, idx) => new TimelineStepDto
+        {
+            Step      = h.Status.ToString(),
+            Timestamp = h.ChangedAt.ToString("MMM dd, yyyy HH:mm"),
+            Location  = h.Comment ?? "Fulfillment Hub",
+            Completed = true,
+            Current   = idx == order.StatusHistory.Count - 1
+        }).ToList();
+
+        if (!timeline.Any())
+        {
+            timeline.Add(new TimelineStepDto
+            {
+                Step      = order.Status.ToString(),
+                Timestamp = order.CreatedAt.ToString("MMM dd, yyyy HH:mm"),
+                Location  = "ShopVerse Fulfillment Hub",
+                Completed = true,
+                Current   = true
+            });
+        }
+
+        var isPaid = order.Payments.Any(p => p.Status == PaymentStatus.Completed)
+                  || order.Status == OrderStatus.Confirmed
+                  || order.Status == OrderStatus.Packed
+                  || order.Status == OrderStatus.Shipped
+                  || order.Status == OrderStatus.OutForDelivery
+                  || order.Status == OrderStatus.Delivered;
+
+        return new OrderTrackResultDto
+        {
+            OrderId               = order.OrderNumber,
+            OrderDate             = order.CreatedAt.ToString("yyyy-MM-ddTHH:mm:ssZ"),
+            CustomerName          = order.ShippingAddress?.FullName ?? order.User?.FirstName ?? "Valued Customer",
+            Email                 = order.User?.Email ?? string.Empty,
+            Status                = order.Status.ToString(),
+            PaymentStatus         = isPaid ? "Completed" : "Pending",
+            CurrentStep           = currentStep,
+            EstimatedDeliveryDate = (order.EstimatedDelivery ?? order.CreatedAt.AddDays(4)).ToString("yyyy-MM-ddTHH:mm:ssZ"),
+            CourierName           = "BlueDart Express",
+            TrackingNumber        = $"BD-{order.OrderNumber.Replace("SV", "")}",
+            ShippingAddress       = addr,
+            Items = order.Items.Select(i => new TrackItemDto
+            {
+                Name     = i.ProductName,
+                Quantity = i.Quantity,
+                Price    = i.UnitPrice,
+                Image    = i.ProductThumbnail ?? "/assets/placeholder.svg"
+            }).ToList(),
+            Timeline = timeline
+        };
+    }
+
     // ─── Admin ────────────────────────────────────────────────────────────────
 
     public async Task<PagedResult<OrderListDto>> GetAllOrdersAsync(int page, int pageSize, string? status = null)
@@ -345,13 +430,20 @@ public class OrderService : IOrderService
     private static OrderListDto ToListDto(Order o)
     {
         var payment = o.Payments.OrderByDescending(p => p.CreatedAt).FirstOrDefault();
+        var isPaid  = payment?.Status == PaymentStatus.Completed
+                   || o.Status == OrderStatus.Confirmed
+                   || o.Status == OrderStatus.Packed
+                   || o.Status == OrderStatus.Shipped
+                   || o.Status == OrderStatus.OutForDelivery
+                   || o.Status == OrderStatus.Delivered;
+
         return new()
         {
             Id            = o.Id,
             OrderNumber   = o.OrderNumber,
             Status        = o.Status.ToString(),
-            PaymentStatus = payment?.Status.ToString() ?? "Pending",
-            PaymentMethod = payment?.Method.ToString() ?? "COD",
+            PaymentStatus = isPaid ? "Completed" : (payment?.Status.ToString() ?? "Pending"),
+            PaymentMethod = payment?.Method.ToString() ?? "Online Payment",
             Total         = o.TotalAmount,
             ItemCount     = o.Items.Count,
             PrimaryImage  = o.Items.FirstOrDefault()?.ProductThumbnail,
@@ -362,13 +454,20 @@ public class OrderService : IOrderService
     private static OrderDetailDto ToDetailDto(Order o)
     {
         var payment = o.Payments.OrderByDescending(p => p.CreatedAt).FirstOrDefault();
+        var isPaid  = payment?.Status == PaymentStatus.Completed
+                   || o.Status == OrderStatus.Confirmed
+                   || o.Status == OrderStatus.Packed
+                   || o.Status == OrderStatus.Shipped
+                   || o.Status == OrderStatus.OutForDelivery
+                   || o.Status == OrderStatus.Delivered;
+
         return new()
         {
             Id             = o.Id,
             OrderNumber    = o.OrderNumber,
             Status         = o.Status.ToString(),
-            PaymentStatus  = payment?.Status.ToString() ?? "Pending",
-            PaymentMethod  = payment?.Method.ToString() ?? "COD",
+            PaymentStatus  = isPaid ? "Completed" : (payment?.Status.ToString() ?? "Pending"),
+            PaymentMethod  = payment?.Method.ToString() ?? "Online Payment",
             DeliveryOption = o.DeliveryOption.ToString(),
             Subtotal       = o.SubTotal,
             ShippingCost   = o.ShippingAmount,
