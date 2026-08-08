@@ -73,6 +73,7 @@ public class CategoryService : ICategoryService
             {
                 var dto = MapDto(c, counts);
                 dto.Children = BuildTree(all, c.Id, counts);
+                dto.ProductCount += dto.Children.Sum(ch => ch.ProductCount);
                 return dto;
             })
             .ToList();

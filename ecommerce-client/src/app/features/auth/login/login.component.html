@@ -1,104 +1,201 @@
 <div class="auth-page">
-  <div class="auth-card">
-    <!-- Header -->
-    <div class="auth-header">
-      <a routerLink="/" class="auth-logo">
+
+  <!-- ── Left Visual & Promotional Panel ─────────────────── -->
+  <div class="auth-visual" aria-hidden="true">
+    <div class="visual-overlay"></div>
+    <div class="visual-content">
+
+      <!-- Logo Badge -->
+      <a routerLink="/" class="brand-badge">
         <span class="logo-icon">SV</span>
         <span class="logo-text">ShopVerse</span>
       </a>
-      <h1 class="auth-title">Welcome back</h1>
-      <p class="auth-subtitle">Sign in to your account to continue shopping</p>
-    </div>
 
-    <!-- Form -->
-    <form [formGroup]="form" (ngSubmit)="submit()" class="auth-form" novalidate>
+      <span class="badge-pill mb-3">Welcome Back!</span>
 
-      <div class="form-group">
-        <label for="email">Email address</label>
-        <div class="input-wrapper">
-          <svg class="input-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
-          </svg>
-          <input
-            id="email" type="email" formControlName="email"
-            class="form-control has-icon"
-            [class.is-invalid]="email.invalid && email.touched"
-            placeholder="you@example.com"
-            autocomplete="email"
-          />
-        </div>
-        @if (email.invalid && email.touched) {
-          <span class="form-error">
-            @if (email.errors?.['required']) { Email is required. }
-            @else if (email.errors?.['email']) { Please enter a valid email. }
-          </span>
-        }
+      <h2 class="visual-headline">
+        Sign in to<br/>ShopVerse
+      </h2>
+      <p class="visual-subhead">Access your account, track orders live, save wishlist items, and unlock exclusive VIP discounts.</p>
+
+      <!-- 3 Feature Highlights -->
+      <ul class="benefits-list">
+        <li>
+          <span class="b-icon">✨</span>
+          <div>
+            <strong>Exclusive Deals &amp; Discounts</strong>
+            <span>Unlock personalized member-only promotional offers</span>
+          </div>
+        </li>
+        <li>
+          <span class="b-icon">🚚</span>
+          <div>
+            <strong>Live Order Tracking</strong>
+            <span>Real-time shipment updates &amp; 1-click express checkout</span>
+          </div>
+        </li>
+        <li>
+          <span class="b-icon">❤️</span>
+          <div>
+            <strong>Saved Favorites</strong>
+            <span>Sync your wishlist items across all your devices seamlessly</span>
+          </div>
+        </li>
+      </ul>
+
+      <!-- Floating Product Badges -->
+      <div class="floating-badge badge-top-right">
+        <span class="badge-sub">Up to</span>
+        <span class="badge-val">50% OFF</span>
       </div>
 
-      <div class="form-group">
-        <label for="password">
-          Password
-          <a routerLink="/auth/forgot-password" class="forgot-link">Forgot password?</a>
-        </label>
-        <div class="input-wrapper">
-          <svg class="input-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-          </svg>
-          <input
-            id="password" [type]="showPassword() ? 'text' : 'password'"
-            formControlName="password"
-            class="form-control has-icon has-icon-right"
-            [class.is-invalid]="password.invalid && password.touched"
-            placeholder="Enter your password"
-            autocomplete="current-password"
-          />
-          <button type="button" class="input-icon-right" (click)="showPassword.set(!showPassword())">
-            @if (showPassword()) {
-              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-            } @else {
-              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-            }
-          </button>
-        </div>
-        @if (password.invalid && password.touched) {
-          <span class="form-error">Password is required.</span>
-        }
+      <div class="floating-badge badge-bottom-left">
+        <span class="badge-sub">Verified</span>
+        <span class="badge-val">256-Bit SSL</span>
       </div>
 
-      <button type="submit" class="btn-primary btn-full" [disabled]="loading()">
-        @if (loading()) { <span class="btn-spinner"></span> Signing in… }
-        @else { Sign In }
-      </button>
-    </form>
-
-    <!-- Demo accounts -->
-    <div class="demo-section">
-      <p class="demo-label">Demo accounts</p>
-      <div class="demo-accounts">
-        <div class="demo-pill">
-          <strong>Admin:</strong> admin&#64;shopverse.com / Admin&#64;123456
-        </div>
-        <div class="demo-pill">
-          <strong>Customer:</strong> john&#64;example.com / Customer&#64;123456
-        </div>
-      </div>
-    </div>
-
-    <p class="auth-switch">
-      Don't have an account? <a routerLink="/auth/register">Create account</a>
-    </p>
-  </div>
-
-  <!-- Side visual -->
-  <div class="auth-visual" aria-hidden="true">
-    <div class="visual-content">
-      <h2>Shop Smarter,<br/>Live Better</h2>
-      <p>Discover millions of products from top brands, with fast delivery and easy returns.</p>
       <div class="visual-stats">
-        <div class="stat"><span class="stat-value">10M+</span><span class="stat-label">Products</span></div>
-        <div class="stat"><span class="stat-value">500K+</span><span class="stat-label">Customers</span></div>
-        <div class="stat"><span class="stat-value">4.8★</span><span class="stat-label">Rating</span></div>
+        <div class="stat-item">
+          <span class="stat-num">10M+</span>
+          <span class="stat-label">Products</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num">500K+</span>
+          <span class="stat-label">Happy Buyers</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num">4.9★</span>
+          <span class="stat-label">Rating</span>
+        </div>
       </div>
     </div>
   </div>
+
+  <!-- ── Right Glassmorphic Form Panel ──────────────────── -->
+  <div class="auth-card-wrapper">
+    <div class="auth-card">
+
+      <div class="auth-header">
+        <a routerLink="/" class="auth-logo">
+          <span class="logo-icon">SV</span>
+          <span class="logo-text">ShopVerse</span>
+        </a>
+        <h1 class="auth-title">Sign In to Your Account</h1>
+        <p class="auth-subtitle">Enter your credentials below to access your account.</p>
+      </div>
+
+      <!-- Login Form -->
+      <form [formGroup]="form" (ngSubmit)="submit()" class="auth-form" novalidate>
+
+        <!-- Email Field -->
+        <div class="form-group">
+          <label for="email">Email Address <span class="required">*</span></label>
+          <div class="input-wrapper">
+            <svg class="input-icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+            </svg>
+            <input
+              id="email" type="email" formControlName="email"
+              class="form-control has-icon"
+              [class.is-invalid]="email.invalid && email.touched"
+              placeholder="you@example.com"
+              autocomplete="email"
+            />
+          </div>
+          @if (email.invalid && email.touched) {
+            <span class="form-error">
+              @if (email.errors?.['required']) { Email is required. }
+              @else if (email.errors?.['email']) { Please enter a valid email address. }
+            </span>
+          }
+        </div>
+
+        <!-- Password Field -->
+        <div class="form-group">
+          <div class="label-row">
+            <label for="password">Password <span class="required">*</span></label>
+            <a routerLink="/auth/forgot-password" class="forgot-link" id="forgot-password-link">Forgot Password?</a>
+          </div>
+          <div class="input-wrapper">
+            <svg class="input-icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            <input
+              id="password" [type]="showPassword() ? 'text' : 'password'"
+              formControlName="password"
+              class="form-control has-icon has-icon-right"
+              [class.is-invalid]="password.invalid && password.touched"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+            />
+            <button type="button" class="input-icon-right" (click)="showPassword.set(!showPassword())" aria-label="Toggle password visibility">
+              @if (showPassword()) {
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+              } @else {
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              }
+            </button>
+          </div>
+          @if (password.invalid && password.touched) {
+            <span class="form-error">Password is required (min 6 characters).</span>
+          }
+        </div>
+
+        <!-- Remember Me Checkbox -->
+        <div class="remember-row mb-2">
+          <label class="checkbox-row">
+            <input type="checkbox" id="remember-me-check" />
+            <span>Remember me on this device</span>
+          </label>
+        </div>
+
+        <!-- Primary Sign In Submit Button -->
+        <button type="submit" class="btn-primary btn-full" [disabled]="loading()" id="login-submit-btn">
+          @if (loading()) {
+            <span class="btn-spinner"></span>
+            Signing in…
+          } @else {
+            Sign In
+          }
+        </button>
+      </form>
+
+      <!-- Social Logins Divider -->
+      <div class="social-divider">
+        <span>Or continue with</span>
+      </div>
+
+      <!-- Social Login Buttons -->
+      <div class="social-btns-row">
+        <button type="button" class="btn-social" id="google-login-btn" (click)="loginGoogle('DEV_MOCK_GOOGLE_ID_TOKEN')">
+          <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"/><path fill="#FBBC05" d="M5.6 14.8c-.3-.8-.4-1.8-.4-2.8s.1-2 .4-2.8L1.9 6.3C.7 8.7 0 10.3 0 12s.7 3.3 1.9 5.7l3.7-2.9z"/><path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.2L1.9 16C3.7 19.7 7.5 23 12 23z"/></svg>
+          Google
+        </button>
+        <button type="button" class="btn-social" id="facebook-login-btn" (click)="loginFacebook('DEV_MOCK_FACEBOOK_ACCESS_TOKEN')">
+          <svg width="18" height="18" fill="#1877F2" viewBox="0 0 24 24"><path d="M24 12a12 12 0 1 0-13.87 11.85v-8.38H7.08V12h3.05V9.36c0-3.01 1.79-4.68 4.54-4.68 1.32 0 2.7.24 2.7.24v2.97h-1.52c-1.49 0-1.96.93-1.96 1.88V12h3.35l-.54 3.47h-2.81v8.38A12 12 0 0 0 24 12z"/></svg>
+          Facebook
+        </button>
+      </div>
+
+      <!-- Demo Accounts Section -->
+      <div class="demo-section mt-4">
+        <p class="demo-label">Demo Credentials</p>
+        <div class="demo-accounts">
+          <div class="demo-pill">
+            <strong>Admin:</strong> admin&#64;shopverse.com / Admin&#64;123456
+          </div>
+          <div class="demo-pill">
+            <strong>Customer:</strong> john&#64;example.com / Customer&#64;123456
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Account Switch Link -->
+      <p class="auth-switch">
+        Don't have an account? <a routerLink="/auth/register" id="create-account-link">Create Account</a>
+      </p>
+
+    </div>
+  </div>
+
 </div>

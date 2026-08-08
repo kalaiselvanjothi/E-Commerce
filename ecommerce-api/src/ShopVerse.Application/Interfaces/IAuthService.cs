@@ -13,4 +13,6 @@ public interface IAuthService
     Task ForgotPasswordAsync(string email);
     Task ResetPasswordAsync(ResetPasswordDto dto);
     Task ChangePasswordAsync(Guid userId, ChangePasswordDto dto);
+    Task<AuthResponseDto> GoogleLoginAsync(GoogleLoginDto dto);
+    Task<AuthResponseDto> FacebookLoginAsync(FacebookLoginDto dto);
 }

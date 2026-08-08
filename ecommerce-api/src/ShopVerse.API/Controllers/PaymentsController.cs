@@ -40,6 +40,31 @@ public class PaymentsController : ControllerBase
         return Ok(ApiResponse<OrderDetailDto>.Ok(order, "Payment verified and order confirmed"));
     }
 
+    /// <summary>
+    /// Server-to-Server Razorpay Webhook endpoint.
+    /// Handles payment.authorized, payment.captured, payment.failed, refund.created, refund.processed.
+    /// </summary>
+    [HttpPost("razorpay/webhook")]
+    [AllowAnonymous]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(400)]
+    public async Task<IActionResult> ProcessWebhook()
+    {
+        var signature = Request.Headers["X-Razorpay-Signature"].ToString();
+        using var reader = new System.IO.StreamReader(Request.Body);
+        var rawBody = await reader.ReadToEndAsync();
+
+        try
+        {
+            await _paymentService.ProcessRazorpayWebhookAsync(rawBody, signature);
+            return Ok(new { status = "success", message = "Webhook processed successfully" });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { status = "error", message = ex.Message });
+        }
+    }
+
     private Guid GetUserId() =>
         Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 }

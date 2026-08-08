@@ -34,8 +34,8 @@ public class ErrorHandlingMiddleware
 
         if (exception is UnauthorizedAccessException)
         {
-            code = HttpStatusCode.Unauthorized;
-            message = "Unauthorized";
+            code = HttpStatusCode.Forbidden;
+            message = exception.Message;
         }
         else if (exception is KeyNotFoundException)
         {

@@ -15,19 +15,22 @@ public class AuthService : IAuthService
     private readonly IJwtService _jwtService;
     private readonly ShopVerseDbContext _context;
     private readonly IConfiguration _config;
+    private readonly IEmailSender _emailSender;
 
     public AuthService(
         UserManager<User> userManager,
         SignInManager<User> signInManager,
         IJwtService jwtService,
         ShopVerseDbContext context,
-        IConfiguration config)
+        IConfiguration config,
+        IEmailSender emailSender)
     {
-        _userManager = userManager;
+        _userManager   = userManager;
         _signInManager = signInManager;
-        _jwtService = jwtService;
-        _context = context;
-        _config = config;
+        _jwtService    = jwtService;
+        _context       = context;
+        _config        = config;
+        _emailSender   = emailSender;
     }
 
     public async Task<AuthResponseDto> RegisterAsync(RegisterDto dto)
@@ -147,12 +150,37 @@ public class AuthService : IAuthService
     public async Task ForgotPasswordAsync(string email)
     {
         var user = await _userManager.FindByEmailAsync(email);
-        if (user == null) return; // Don't reveal if email exists
+        if (user == null) return; // Account enumeration protection
 
         var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-        // In production: send email with reset link containing token
-        // For now, log it (dev mode)
-        Console.WriteLine($"[DEV] Password reset token for {email}: {token}");
+        var encodedToken = System.Net.WebUtility.UrlEncode(token);
+        var encodedEmail = System.Net.WebUtility.UrlEncode(user.Email!);
+        var clientUrl    = _config["ClientUrl"] ?? "http://localhost:4200";
+        var resetLink    = $"{clientUrl}/auth/reset-password?email={encodedEmail}&token={encodedToken}";
+
+        var htmlBody = $@"
+<!DOCTYPE html>
+<html>
+<head><meta charset='utf-8'/></head>
+<body style='font-family: Arial, sans-serif; background-color: #F8FAFC; margin: 0; padding: 20px;'>
+  <div style='max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 16px; padding: 32px; border: 1px solid #E2E8F0; box-shadow: 0 4px 20px rgba(0,0,0,0.05);'>
+    <div style='text-align: center; margin-bottom: 24px;'>
+      <span style='display: inline-block; background: #4F46E5; color: #FFFFFF; font-weight: 900; font-size: 16px; padding: 8px 16px; border-radius: 8px;'>SV</span>
+      <h2 style='color: #0F172A; margin-top: 12px;'>Reset Your Password</h2>
+    </div>
+    <p style='color: #475569; font-size: 15px;'>Hello <strong>{user.FirstName}</strong>,</p>
+    <p style='color: #475569; font-size: 14px; line-height: 1.6;'>We received a request to reset the password for your ShopVerse account (<strong>{user.Email}</strong>). Click the button below to set a new password:</p>
+    <div style='text-align: center; margin: 32px 0;'>
+      <a href='{resetLink}' style='background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%); color: #FFFFFF; padding: 14px 28px; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 15px; display: inline-block;'>Reset Password</a>
+    </div>
+    <p style='color: #64748B; font-size: 12px; line-height: 1.5;'>If you did not request a password reset, you can safely ignore this email. Your password will remain unchanged.</p>
+    <hr style='border: none; border-top: 1px solid #E2E8F0; margin: 24px 0;'/>
+    <p style='color: #94A3B8; font-size: 11px; text-align: center;'>ShopVerse Security Team • <a href='{clientUrl}' style='color: #4F46E5;'>www.shopverse.com</a></p>
+  </div>
+</body>
+</html>";
+
+        await _emailSender.SendEmailAsync(user.Email!, "Reset Your ShopVerse Password", htmlBody);
     }
 
     public async Task ResetPasswordAsync(ResetPasswordDto dto)
@@ -180,6 +208,77 @@ public class AuthService : IAuthService
         var result = await _userManager.ChangePasswordAsync(user, dto.CurrentPassword, dto.NewPassword);
         if (!result.Succeeded)
             throw new InvalidOperationException(string.Join("; ", result.Errors.Select(e => e.Description)));
+    }
+
+    public async Task<AuthResponseDto> GoogleLoginAsync(GoogleLoginDto dto)
+    {
+        Google.Apis.Auth.GoogleJsonWebSignature.Payload payload;
+        try
+        {
+            var settings = new Google.Apis.Auth.GoogleJsonWebSignature.ValidationSettings();
+            var googleClientId = _config["Authentication:Google:ClientId"];
+            if (!string.IsNullOrEmpty(googleClientId))
+            {
+                settings.Audience = new[] { googleClientId };
+            }
+            payload = await Google.Apis.Auth.GoogleJsonWebSignature.ValidateAsync(dto.IdToken, settings);
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException($"Invalid Google ID Token: {ex.Message}");
+        }
+
+        return await ProcessOAuthUser(payload.Email, payload.GivenName ?? payload.Name, payload.FamilyName ?? "User", payload.Picture);
+    }
+
+    public async Task<AuthResponseDto> FacebookLoginAsync(FacebookLoginDto dto)
+    {
+        using var client = new System.Net.Http.HttpClient();
+        var response = await client.GetAsync($"https://graph.facebook.com/me?fields=id,first_name,last_name,email,picture&access_token={dto.AccessToken}");
+
+        if (!response.IsSuccessStatusCode)
+            throw new InvalidOperationException("Invalid Facebook Access Token.");
+
+        var json = await response.Content.ReadAsStringAsync();
+        using var doc = System.Text.Json.JsonDocument.Parse(json);
+        var root = doc.RootElement;
+
+        var email = root.TryGetProperty("email", out var e) ? e.GetString() : null;
+        var firstName = root.TryGetProperty("first_name", out var fn) ? fn.GetString() : "Facebook";
+        var lastName = root.TryGetProperty("last_name", out var ln) ? ln.GetString() : "User";
+        var avatar = root.TryGetProperty("picture", out var p) && p.TryGetProperty("data", out var d) && d.TryGetProperty("url", out var u) ? u.GetString() : null;
+
+        if (string.IsNullOrEmpty(email))
+            email = $"{root.GetProperty("id").GetString()}@facebook.com";
+
+        return await ProcessOAuthUser(email, firstName!, lastName!, avatar);
+    }
+
+    private async Task<AuthResponseDto> ProcessOAuthUser(string email, string firstName, string lastName, string? avatar)
+    {
+        var user = await _userManager.FindByEmailAsync(email);
+        if (user == null)
+        {
+            user = new User
+            {
+                UserName       = email,
+                Email          = email,
+                FirstName      = firstName,
+                LastName       = lastName,
+                AvatarUrl      = avatar,
+                EmailConfirmed = true,
+                IsActive       = true
+            };
+
+            var randomPass = Guid.NewGuid().ToString("N") + "Aa1!";
+            var createRes  = await _userManager.CreateAsync(user, randomPass);
+            if (!createRes.Succeeded)
+                throw new InvalidOperationException(string.Join("; ", createRes.Errors.Select(err => err.Description)));
+
+            await _userManager.AddToRoleAsync(user, "Customer");
+        }
+
+        return await BuildAuthResponse(user);
     }
 
     // ─── Helpers ──────────────────────────────────────────────────────────────

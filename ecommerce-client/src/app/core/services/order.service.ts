@@ -24,6 +24,10 @@ export class OrderService {
     return this.api.get<Order>(`/orders/${id}`);
   }
 
+  downloadInvoice(id: string): Observable<Blob> {
+    return this.api.getBlob(`/orders/${id}/invoice`);
+  }
+
   cancelOrder(id: string, dto: CancelOrderRequest): Observable<void> {
     return this.api.post<void>(`/orders/${id}/cancel`, dto);
   }

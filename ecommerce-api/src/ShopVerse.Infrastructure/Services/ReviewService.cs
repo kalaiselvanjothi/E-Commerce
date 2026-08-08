@@ -47,7 +47,7 @@ public class ReviewService : IReviewService
         if (exists)
             throw new InvalidOperationException("You have already reviewed this product.");
 
-        // Check verified purchase
+        // Check verified purchase (Must have purchased and received the product)
         var isVerified = await _context.OrderItems
             .Include(oi => oi.Order)
             .AnyAsync(oi => oi.ProductId == productId
@@ -56,11 +56,11 @@ public class ReviewService : IReviewService
 
         var review = new Review
         {
-            UserId            = userId,
-            ProductId         = productId,
-            Rating            = dto.Rating,
-            Title             = dto.Title,
-            Body              = dto.Body,
+            UserId             = userId,
+            ProductId          = productId,
+            Rating             = dto.Rating,
+            Title              = dto.Title,
+            Body               = dto.Body,
             IsVerifiedPurchase = isVerified
         };
 

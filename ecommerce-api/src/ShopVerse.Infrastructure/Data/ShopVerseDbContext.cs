@@ -27,11 +27,17 @@ public class ShopVerseDbContext : IdentityDbContext<User, IdentityRole<Guid>, Gu
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<RecentlyViewed> RecentlyViewed => Set<RecentlyViewed>();
     public DbSet<Notification> Notifications => Set<Notification>();
+    public DbSet<ContactEnquiry> ContactEnquiries => Set<ContactEnquiry>();
+    public DbSet<NewsletterSubscriber> NewsletterSubscribers => Set<NewsletterSubscriber>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
         builder.ApplyConfigurationsFromAssembly(typeof(ShopVerseDbContext).Assembly);
+
+        builder.Entity<NewsletterSubscriber>()
+            .HasIndex(s => s.Email)
+            .IsUnique();
 
         // Rename Identity tables for clarity
         builder.Entity<User>().ToTable("Users");

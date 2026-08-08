@@ -17,27 +17,30 @@ import { Category, SearchSuggestion } from '../../core/models/product.models';
   styleUrl: './header.component.scss'
 })
 export class HeaderComponent implements OnInit, OnDestroy {
-  readonly auth      = inject(AuthService);
-  readonly cart      = inject(CartService);
-  readonly wishlist  = inject(WishlistService);
+  readonly auth     = inject(AuthService);
+  readonly cart     = inject(CartService);
+  readonly wishlist = inject(WishlistService);
   private readonly productService = inject(ProductService);
   private readonly router         = inject(Router);
   private readonly el             = inject(ElementRef);
 
-  categories     = signal<Category[]>([]);
-  suggestions    = signal<SearchSuggestion[]>([]);
-  searchQuery    = signal('');
+  categories      = signal<Category[]>([]);
+  suggestions     = signal<SearchSuggestion[]>([]);
+  searchQuery     = signal('');
   showSuggestions = signal(false);
-  showUserMenu   = signal(false);
-  showMobileMenu = signal(false);
-  isSearching    = signal(false);
+  showUserMenu    = signal(false);
+  showMobileMenu  = signal(false);
+  isSearching     = signal(false);
+  isDark          = signal(false);
 
   private searchSubject = new Subject<string>();
   private destroy$      = new Subject<void>();
 
   ngOnInit(): void {
+    // Load categories
     this.productService.getCategories().subscribe(cats => this.categories.set(cats));
 
+    // Search suggestions with debounce
     this.searchSubject.pipe(
       debounceTime(300),
       distinctUntilChanged(),
@@ -48,6 +51,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.showSuggestions.set(s.length > 0);
       this.isSearching.set(false);
     });
+
+    // Initialize theme from localStorage or system preference
+    this.initTheme();
   }
 
   ngOnDestroy(): void {
@@ -55,6 +61,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  // ─── Search ────────────────────────────────────────────────────────────────
   onSearchInput(q: string): void {
     this.searchQuery.set(q);
     if (q.length >= 2) this.isSearching.set(true);
@@ -75,11 +82,29 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.router.navigate(['/products', s.slug]);
   }
 
+  // ─── Auth ──────────────────────────────────────────────────────────────────
   logout(): void {
     this.showUserMenu.set(false);
     this.auth.logout();
   }
 
+  // ─── Theme ─────────────────────────────────────────────────────────────────
+  toggleTheme(): void {
+    const next = this.isDark() ? 'light' : 'dark';
+    this.isDark.set(!this.isDark());
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('sv_theme', next);
+  }
+
+  private initTheme(): void {
+    const saved = localStorage.getItem('sv_theme') as 'light' | 'dark' | null;
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const theme = saved ?? (prefersDark ? 'dark' : 'light');
+    this.isDark.set(theme === 'dark');
+    document.documentElement.setAttribute('data-theme', theme);
+  }
+
+  // ─── Click outside to close dropdowns ─────────────────────────────────────
   @HostListener('document:click', ['$event'])
   onDocClick(e: MouseEvent): void {
     if (!this.el.nativeElement.contains(e.target)) {
@@ -88,6 +113,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
   }
 
-  get cartCount(): number { return this.cart.itemCount(); }
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    this.showSuggestions.set(false);
+    this.showUserMenu.set(false);
+    this.showMobileMenu.set(false);
+  }
+
+  get cartCount(): number     { return this.cart.itemCount(); }
   get wishlistCount(): number { return this.wishlist.itemCount(); }
 }

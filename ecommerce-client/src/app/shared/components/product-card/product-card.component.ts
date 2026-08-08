@@ -28,8 +28,17 @@ export class ProductCardComponent {
   addingToCart  = false;
   togglingWish  = false;
 
+  readonly fallbackImage = 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80';
+
   get isWishlisted(): boolean {
     return this.wishlist.isInWishlist(this.product.id);
+  }
+
+  onImageError(e: Event): void {
+    const target = e.target as HTMLImageElement;
+    if (target && target.src !== this.fallbackImage) {
+      target.src = this.fallbackImage;
+    }
   }
 
   addToCart(e: Event): void {
@@ -40,6 +49,15 @@ export class ProductCardComponent {
     this.cart.addItem({ productId: this.product.id, quantity: 1 }).subscribe({
       next: () => { this.toast.success('Added to cart!'); this.addingToCart = false; },
       error: () => { this.addingToCart = false; }
+    });
+  }
+
+  buyNow(e: Event): void {
+    e.preventDefault(); e.stopPropagation();
+    if (!this.auth.isLoggedIn()) { this.router.navigate(['/auth/login']); return; }
+    this.cart.addItem({ productId: this.product.id, quantity: 1 }).subscribe({
+      next: () => { this.router.navigate(['/checkout']); },
+      error: () => { this.router.navigate(['/checkout']); }
     });
   }
 
