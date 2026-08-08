@@ -56,6 +56,29 @@ export class OrderDetailComponent implements OnInit {
     });
   }
 
+  downloadInvoice(): void {
+    const o = this.order();
+    if (!o) return;
+
+    this.toast.info('Generating PDF tax invoice...');
+    this.orderService.downloadInvoice(o.id).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `ShopVerse-Invoice-${o.orderNumber}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        this.toast.success('Invoice downloaded successfully!');
+      },
+      error: () => {
+        this.toast.error('Failed to download PDF invoice. Please try again.');
+      }
+    });
+  }
+
   get canCancel(): boolean {
     return ['Placed','Confirmed','Packed'].includes(this.order()?.status ?? '');
   }

@@ -123,7 +123,10 @@ export class CheckoutComponent implements OnInit {
                     this.toast.success('Payment successful! Order confirmed.');
                     this.router.navigate(['/account/orders', order.id]);
                   },
-                  error: () => { this.placing.set(false); }
+                  error: err => {
+                    this.placing.set(false);
+                    this.toast.error(err?.error?.message || 'Payment verification failed.');
+                  }
                 });
               },
               modal: { ondismiss: () => this.placing.set(false) }
@@ -131,10 +134,16 @@ export class CheckoutComponent implements OnInit {
             const rzpInstance = new Razorpay(options);
             rzpInstance.open();
           },
-          error: () => this.placing.set(false)
+          error: err => {
+            this.placing.set(false);
+            this.toast.error(err?.error?.message || 'Failed to initiate Razorpay payment. Please try Cash on Delivery or check Razorpay API keys.');
+          }
         });
       },
-      error: () => this.placing.set(false)
+      error: err => {
+        this.placing.set(false);
+        this.toast.error(err?.error?.message || 'Failed to place order. Please check your cart or address.');
+      }
     });
   }
 

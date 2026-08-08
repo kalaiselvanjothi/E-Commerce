@@ -1,65 +1,173 @@
-// ─── Color Palette ────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// ShopVerse Design System — CSS Variables
+// Source of truth for ALL design decisions. Never use magic numbers elsewhere.
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ─── Brand Colors ─────────────────────────────────────────────────────────────
 :root {
-  // Brand
-  --color-primary:        #2563EB;   // Blue 600
-  --color-primary-dark:   #1D4ED8;   // Blue 700
+  --color-primary:        #2563EB;   // Royal Blue (Primary Accent)
+  --color-primary-hover:  #1D4ED8;   // Darker Royal Blue
   --color-primary-light:  #EFF6FF;   // Blue 50
+  --color-primary-dark:   #1E40AF;   // Blue 800
   --color-primary-rgb:    37, 99, 235;
 
-  --color-accent:         #F59E0B;   // Amber 500
-  --color-accent-dark:    #D97706;
-  --color-accent-light:   #FFFBEB;
+  --color-secondary:      #7C3AED;   // Purple/Violet (Secondary Accent)
+  --color-secondary-hover:#6D28D9;   // Darker Purple
+  --color-secondary-light:#F5F3FF;   // Purple 50
+  --color-secondary-rgb:  124, 58, 237;
 
-  --color-success:        #10B981;
-  --color-success-light:  #ECFDF5;
-  --color-error:          #EF4444;
+  --color-accent:         #7C3AED;   // Secondary Accent
+  --color-accent-hover:   #6D28D9;
+  --color-accent-light:   #F5F3FF;
+  --color-accent-rgb:     124, 58, 237;
+
+  // Semantic
+  --color-success:        #22C55E;   // Emerald 500
+  --color-success-light:  #F0FDF4;
+  --color-success-dark:   #15803D;
+
+  --color-error:          #EF4444;   // Red 500
   --color-error-light:    #FEF2F2;
+  --color-error-dark:     #B91C1C;
+
   --color-warning:        #F59E0B;
   --color-warning-light:  #FFFBEB;
+
   --color-info:           #3B82F6;
   --color-info-light:     #EFF6FF;
-
-  // Neutrals
-  --color-bg:             #F8FAFC;
-  --color-surface:        #FFFFFF;
-  --color-surface-2:      #F1F5F9;
-  --color-border:         #E2E8F0;
-  --color-border-dark:    #CBD5E1;
-
-  // Text
-  --color-text-primary:   #0F172A;
-  --color-text-secondary: #475569;
-  --color-text-muted:     #94A3B8;
-  --color-text-inverse:   #FFFFFF;
-
-  // Header
-  --color-header-bg:      #0F172A;
-  --color-header-text:    #F8FAFC;
-
-  // Overlay
-  --overlay:              rgba(15, 23, 42, 0.5);
 }
 
-// ─── Spacing Scale (4-pt grid) ───────────────────────────────────────────────
+// ─── Light Theme (default) ────────────────────────────────────────────────────
+:root, [data-theme='light'] {
+  // Backgrounds
+  --color-bg:              #F8FAFC;
+  --color-bg-alt:          #F1F5F9;
+  --color-surface:         #FFFFFF;
+  --color-surface-2:       #F8FAFC;
+  --color-surface-3:       #F1F5F9;
+
+  // Borders
+  --color-border:          #E2E8F0;
+  --color-border-strong:   #CBD5E1;
+  --color-border-focus:    #4F46E5;
+
+  // Text
+  --color-text-primary:    #0F172A;
+  --color-text-secondary:  #334155;
+  --color-text-muted:      #94A3B8;
+  --color-text-disabled:   #CBD5E1;
+  --color-text-inverse:    #FFFFFF;
+
+  // Navigation
+  --color-nav-bg:          #0F172A;
+  --color-nav-text:        #F8FAFC;
+  --color-nav-muted:       rgba(248, 250, 252, 0.6);
+  --color-nav-border:      rgba(255, 255, 255, 0.07);
+  --color-nav-hover:       rgba(255, 255, 255, 0.08);
+
+  // Overlay
+  --overlay:               rgba(15, 23, 42, 0.6);
+  --overlay-light:         rgba(15, 23, 42, 0.04);
+
+  // Shadows
+  --shadow-xs:             0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm:             0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md:             0 4px 8px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-lg:             0 10px 24px rgba(0, 0, 0, 0.10), 0 4px 8px rgba(0, 0, 0, 0.05);
+  --shadow-xl:             0 20px 40px rgba(0, 0, 0, 0.12), 0 8px 16px rgba(0, 0, 0, 0.06);
+  --shadow-2xl:            0 40px 80px rgba(0, 0, 0, 0.15);
+  --shadow-primary:        0 8px 24px rgba(79, 70, 229, 0.25);
+  --shadow-accent:         0 8px 24px rgba(245, 158, 11, 0.3);
+  --shadow-card:           0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-card-hover:     0 12px 32px rgba(79, 70, 229, 0.12), 0 4px 12px rgba(0, 0, 0, 0.06);
+  --shadow-focus:          0 0 0 3px rgba(79, 70, 229, 0.25);
+  --shadow-focus-error:    0 0 0 3px rgba(239, 68, 68, 0.2);
+}
+
+// ─── Dark Theme ───────────────────────────────────────────────────────────────
+[data-theme='dark'] {
+  // Backgrounds
+  --color-bg:              #0A0A0F;
+  --color-bg-alt:          #0F0F18;
+  --color-surface:         #13131F;
+  --color-surface-2:       #1A1A2E;
+  --color-surface-3:       #232338;
+
+  // Borders
+  --color-border:          #1E1E35;
+  --color-border-strong:   #2D2D50;
+  --color-border-focus:    #6366F1;
+
+  // Text
+  --color-text-primary:    #F1F5F9;
+  --color-text-secondary:  #CBD5E1;
+  --color-text-muted:      #64748B;
+  --color-text-disabled:   #334155;
+  --color-text-inverse:    #0F172A;
+
+  // Navigation
+  --color-nav-bg:          #0F0F1A;
+  --color-nav-text:        #F8FAFC;
+  --color-nav-muted:       rgba(248, 250, 252, 0.5);
+  --color-nav-border:      rgba(255, 255, 255, 0.06);
+  --color-nav-hover:       rgba(255, 255, 255, 0.07);
+
+  // Overlay
+  --overlay:               rgba(0, 0, 0, 0.72);
+  --overlay-light:         rgba(255, 255, 255, 0.03);
+
+  // Semantic overrides for dark
+  --color-primary-light:   rgba(79, 70, 229, 0.15);
+  --color-success-light:   rgba(16, 185, 129, 0.12);
+  --color-error-light:     rgba(239, 68, 68, 0.12);
+  --color-warning-light:   rgba(245, 158, 11, 0.12);
+  --color-accent-light:    rgba(245, 158, 11, 0.12);
+  --color-info-light:      rgba(59, 130, 246, 0.12);
+
+  // Shadows (deeper in dark)
+  --shadow-xs:             0 1px 2px rgba(0, 0, 0, 0.30);
+  --shadow-sm:             0 1px 3px rgba(0, 0, 0, 0.50);
+  --shadow-md:             0 4px 8px rgba(0, 0, 0, 0.40);
+  --shadow-lg:             0 10px 24px rgba(0, 0, 0, 0.50);
+  --shadow-xl:             0 20px 40px rgba(0, 0, 0, 0.60);
+  --shadow-2xl:            0 40px 80px rgba(0, 0, 0, 0.70);
+  --shadow-primary:        0 8px 24px rgba(99, 102, 241, 0.40);
+  --shadow-accent:         0 8px 24px rgba(245, 158, 11, 0.35);
+  --shadow-card:           0 2px 8px rgba(0, 0, 0, 0.40);
+  --shadow-card-hover:     0 12px 32px rgba(79, 70, 229, 0.30), 0 4px 12px rgba(0, 0, 0, 0.30);
+  --shadow-focus:          0 0 0 3px rgba(99, 102, 241, 0.35);
+  --shadow-focus-error:    0 0 0 3px rgba(239, 68, 68, 0.25);
+}
+
+// ─── Spacing (8-point grid) ───────────────────────────────────────────────────
 :root {
-  --space-1:  4px;
-  --space-2:  8px;
-  --space-3:  12px;
-  --space-4:  16px;
-  --space-5:  20px;
-  --space-6:  24px;
-  --space-8:  32px;
-  --space-10: 40px;
-  --space-12: 48px;
-  --space-16: 64px;
-  --space-20: 80px;
+  --space-0:    0;
+  --space-0-5:  2px;
+  --space-1:    4px;
+  --space-1-5:  6px;
+  --space-2:    8px;
+  --space-3:    12px;
+  --space-4:    16px;
+  --space-5:    20px;
+  --space-6:    24px;
+  --space-7:    28px;
+  --space-8:    32px;
+  --space-10:   40px;
+  --space-12:   48px;
+  --space-14:   56px;
+  --space-16:   64px;
+  --space-20:   80px;
+  --space-24:   96px;
+  --space-32:   128px;
 }
 
 // ─── Typography ───────────────────────────────────────────────────────────────
 :root {
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --font-display: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans:    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono:    'JetBrains Mono', 'Fira Code', monospace;
 
+  --text-2xs:  0.625rem;   // 10px
   --text-xs:   0.75rem;    // 12px
   --text-sm:   0.875rem;   // 14px
   --text-base: 1rem;       // 16px
@@ -68,45 +176,60 @@
   --text-2xl:  1.5rem;     // 24px
   --text-3xl:  1.875rem;   // 30px
   --text-4xl:  2.25rem;    // 36px
+  --text-5xl:  3rem;       // 48px
+  --text-6xl:  3.75rem;    // 60px
 
-  --font-normal:   400;
-  --font-medium:   500;
-  --font-semibold: 600;
-  --font-bold:     700;
+  --font-regular:   400;
+  --font-medium:    500;
+  --font-semibold:  600;
+  --font-bold:      700;
   --font-extrabold: 800;
+  --font-black:     900;
+
+  --leading-tight:   1.15;
+  --leading-snug:    1.35;
+  --leading-normal:  1.6;
+  --leading-relaxed: 1.75;
 }
 
-// ─── Borders & Radius ────────────────────────────────────────────────────────
+// ─── Border Radius ────────────────────────────────────────────────────────────
 :root {
-  --radius-sm:  6px;
-  --radius-md:  10px;
-  --radius-lg:  16px;
-  --radius-xl:  24px;
+  --radius-xs:   6px;
+  --radius-sm:   10px;
+  --radius-md:   14px;
+  --radius-lg:   18px;
+  --radius-xl:   24px;
+  --radius-2xl:  32px;
   --radius-full: 9999px;
 }
 
-// ─── Shadows ─────────────────────────────────────────────────────────────────
+// ─── Motion ───────────────────────────────────────────────────────────────────
 :root {
-  --shadow-xs: 0 1px 2px rgba(0,0,0,0.05);
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
-  --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
-  --shadow-lg: 0 10px 15px rgba(0,0,0,0.1), 0 4px 6px rgba(0,0,0,0.05);
-  --shadow-xl: 0 20px 25px rgba(0,0,0,0.1), 0 10px 10px rgba(0,0,0,0.04);
-  --shadow-card-hover: 0 8px 30px rgba(37,99,235,0.12);
-}
+  --duration-instant: 0ms;
+  --duration-fast:    150ms;
+  --duration-base:    250ms;
+  --duration-slow:    400ms;
+  --duration-slower:  600ms;
 
-// ─── Transitions ─────────────────────────────────────────────────────────────
-:root {
-  --transition-fast:   150ms ease;
-  --transition-base:   250ms ease;
-  --transition-slow:   400ms ease;
-  --transition-spring: 350ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-in:      cubic-bezier(0.4, 0, 1, 1);
+  --ease-out:     cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out:  cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring:  cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth:  cubic-bezier(0.23, 1, 0.32, 1);
+
+  --transition-fast:   var(--duration-fast) var(--ease-in-out);
+  --transition-base:   var(--duration-base) var(--ease-in-out);
+  --transition-slow:   var(--duration-slow) var(--ease-out);
+  --transition-spring: var(--duration-slow) var(--ease-spring);
 }
 
 // ─── Z-Index ─────────────────────────────────────────────────────────────────
 :root {
+  --z-base:     0;
+  --z-raised:   10;
   --z-dropdown: 100;
   --z-sticky:   200;
+  --z-overlay:  250;
   --z-modal:    300;
   --z-toast:    400;
   --z-tooltip:  500;
@@ -114,7 +237,13 @@
 
 // ─── Layout ──────────────────────────────────────────────────────────────────
 :root {
-  --header-height:  64px;
-  --container-max:  1280px;
-  --sidebar-width:  260px;
+  --header-height:        68px;
+  --header-subnav-height: 40px;
+  --header-total:         108px;
+  --container-max:        1280px;
+  --container-pad-sm:     var(--space-4);
+  --container-pad-md:     var(--space-6);
+  --container-pad-lg:     var(--space-8);
+  --sidebar-width:        280px;
+  --admin-sidebar:        260px;
 }

@@ -1,0 +1,49 @@
+<div class="page-wrapper py-10">
+  <div class="container">
+
+    <!-- Header Banner -->
+    <div class="offers-hero">
+      <span class="badge-featured mb-3">Exclusive Deals & Coupons</span>
+      <h1 class="offers-hero-title">ShopVerse Offers & Savings</h1>
+      <p class="offers-hero-sub">
+        Unlock premium savings with verified discount promo codes and limited-time price drops across all categories.
+      </p>
+    </div>
+
+    <!-- Active Coupons Section -->
+    <div class="coupons-grid mb-14">
+      @for (c of coupons; track c.code) {
+        <div class="coupon-card">
+          <div class="coupon-badge">{{ c.discount }}</div>
+          <div class="coupon-body">
+            <h3 class="font-bold text-lg mb-1">{{ c.title }}</h3>
+            <p class="text-xs text-muted mb-4">{{ c.desc }}</p>
+
+            <div class="coupon-code-row">
+              <div class="code-box">
+                <span class="code-text">{{ c.code }}</span>
+              </div>
+              <button class="btn-primary btn-sm" (click)="copyCode(c.code)">Copy Code</button>
+            </div>
+            <div class="text-2xs text-muted mt-2">Min order: {{ c.minOrder }}</div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Flash Sale Products Grid -->
+    <div class="section-head mb-6">
+      <div>
+        <span class="section-eyebrow">Price Drops</span>
+        <h2 class="section-title">Trending Discounted Items</h2>
+      </div>
+    </div>
+
+    <div class="products-grid">
+      @for (product of saleProducts(); track product.id) {
+        <app-product-card [product]="product" />
+      }
+    </div>
+
+  </div>
+</div>

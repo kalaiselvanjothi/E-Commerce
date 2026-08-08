@@ -15,6 +15,7 @@ export class DashboardComponent implements OnInit {
   private readonly api = inject(ApiService);
   stats   = signal<DashboardStats | null>(null);
   loading = signal(true);
+  readonly today = new Date();
 
   maxRevenue = computed(() => {
     const pts = this.stats()?.revenueChart ?? [];

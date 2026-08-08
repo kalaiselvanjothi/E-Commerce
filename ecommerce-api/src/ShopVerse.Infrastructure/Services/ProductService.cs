@@ -20,12 +20,17 @@ public class ProductService : IProductService
             .Where(p => p.IsActive && !p.IsDeleted)
             .AsQueryable();
 
-        // Category filter: match slug on the product's own category OR its parent
+        // Category filter: match slug on the product's own category OR its parent OR category alias
         if (!string.IsNullOrWhiteSpace(filter.CategorySlug))
         {
+            var slug = filter.CategorySlug.ToLower();
             query = query.Where(p =>
-                p.Category.Slug == filter.CategorySlug ||
-                p.Category.Parent!.Slug == filter.CategorySlug);
+                p.Category.Slug == slug ||
+                (p.Category.Parent != null && p.Category.Parent.Slug == slug) ||
+                (slug == "home-kitchen" && (p.Category.Slug == "home-living" || p.Category.Slug == "kitchen" || p.Category.Slug == "furniture")) ||
+                (slug == "sports" && (p.Category.Slug == "sports-fitness" || p.Category.Slug == "gym-equipment")) ||
+                (slug == "beauty" && p.Category.Slug == "beauty-health") ||
+                (slug == "accessories" && (p.Category.Slug == "accessories" || p.Brand.ToLower() == "bellroy" || p.Tags != null && p.Tags.Contains("bag"))));
         }
 
         // Text search
@@ -56,6 +61,12 @@ public class ProductService : IProductService
 
         if (filter.FeaturedOnly == true)
             query = query.Where(p => p.IsFeatured);
+
+        if (!string.IsNullOrWhiteSpace(filter.Size))
+            query = query.Where(p => p.Variants.Any(v => v.Type == "size" && v.Value.ToLower() == filter.Size.ToLower()));
+
+        if (!string.IsNullOrWhiteSpace(filter.Color))
+            query = query.Where(p => p.Variants.Any(v => v.Type == "color" && v.Value.ToLower() == filter.Color.ToLower()));
 
         // Sorting
         query = filter.SortBy switch

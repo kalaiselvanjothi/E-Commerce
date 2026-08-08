@@ -11,7 +11,7 @@ import { StarRatingComponent } from '../../shared/components/star-rating/star-ra
 @Component({
   selector: 'app-wishlist',
   standalone: true,
-  imports: [CommonModule, RouterLink, EmptyStateComponent, StarRatingComponent],
+  imports: [CommonModule, RouterLink, StarRatingComponent],
   templateUrl: './wishlist.component.html',
   styleUrl: './wishlist.component.scss'
 })

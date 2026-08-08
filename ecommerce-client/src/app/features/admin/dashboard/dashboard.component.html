@@ -1,92 +1,203 @@
 <div class="dashboard">
-  <h1 class="page-title">Dashboard</h1>
 
+  <!-- ── Header Banner ──────────────────────────────────── -->
+  <div class="dash-header">
+    <div>
+      <h1 class="page-title">Dashboard</h1>
+      <p class="page-sub">Welcome back — here’s your enterprise store performance overview.</p>
+    </div>
+    <div class="dash-date">{{ today | date:'EEEE, d MMM yyyy' }}</div>
+  </div>
+
+  <!-- ── Loading Skeletons ────────────────────────────────── -->
   @if (loading()) {
     <div class="stats-grid">
       @for (i of [1,2,3,4]; track i) {
-        <div class="skeleton" style="height:100px;border-radius:16px"></div>
+        <div class="skeleton" style="height:110px;border-radius:18px"></div>
       }
     </div>
-  } @else if (stats()) {
-    <!-- Stats Cards -->
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-icon revenue">₹</div>
-        <div class="stat-info">
-          <div class="stat-value">₹{{ stats()!.totalRevenue | number }}</div>
-          <div class="stat-label">Total Revenue</div>
-          <div class="stat-change" [class.up]="stats()!.revenueChange >= 0">{{ change(stats()!.revenueChange) }} vs last month</div>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon orders">🛍️</div>
-        <div class="stat-info">
-          <div class="stat-value">{{ stats()!.totalOrders | number }}</div>
-          <div class="stat-label">Total Orders</div>
-          <div class="stat-change" [class.up]="stats()!.ordersChange >= 0">{{ change(stats()!.ordersChange) }}</div>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon customers">👥</div>
-        <div class="stat-info">
-          <div class="stat-value">{{ stats()!.totalCustomers | number }}</div>
-          <div class="stat-label">Customers</div>
-          <div class="stat-change" [class.up]="stats()!.customersChange >= 0">{{ change(stats()!.customersChange) }}</div>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon pending">⏳</div>
-        <div class="stat-info">
-          <div class="stat-value">{{ stats()!.pendingOrders }}</div>
-          <div class="stat-label">Pending Orders</div>
-          <div class="stat-sub">Requires attention</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Revenue Chart (simple bar) -->
     <div class="chart-grid">
-      <div class="chart-card">
-        <h3>Revenue (Last 30 days)</h3>
-        <div class="bar-chart">
-          @for (pt of stats()!.revenueChart; track pt.date) {
-            <div class="bar-wrap" [title]="pt.date + ': ₹' + pt.value">
-              <div class="bar" [style.height.%]="(pt.value / maxRevenue()) * 100"></div>
-            </div>
-          }
-        </div>
-      </div>
-      <div class="chart-card">
-        <h3>Orders (Last 30 days)</h3>
-        <div class="bar-chart">
-          @for (pt of stats()!.ordersChart; track pt.date) {
-            <div class="bar-wrap orders-bar" [title]="pt.date + ': ' + pt.value + ' orders'">
-              <div class="bar" [style.height.%]="(pt.value / maxOrders()) * 100"></div>
-            </div>
-          }
-        </div>
-      </div>
+      <div class="skeleton" style="height:240px;border-radius:18px"></div>
+      <div class="skeleton" style="height:240px;border-radius:18px"></div>
     </div>
-
-    <!-- Bottom Grid -->
     <div class="bottom-grid">
+      <div class="skeleton" style="height:300px;border-radius:18px"></div>
+      <div class="skeleton" style="height:300px;border-radius:18px"></div>
+    </div>
+  }
+
+  @else if (stats()) {
+
+    <!-- ── Stat Cards ──────────────────────────────────────── -->
+    <div class="stats-grid">
+
+      <div class="stat-card revenue-card">
+        <div class="stat-icon-box">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <div class="stat-label">Total Revenue</div>
+          <div class="stat-value">₹{{ stats()!.totalRevenue | number }}</div>
+          <div class="stat-change" [class.up]="stats()!.revenueChange >= 0" [class.down]="stats()!.revenueChange < 0">
+            @if (stats()!.revenueChange >= 0) {
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M7 17l10-10M7 7h10v10"/></svg>
+            } @else {
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M7 7l10 10M17 7H7v10"/></svg>
+            }
+            {{ change(stats()!.revenueChange) }} vs last month
+          </div>
+        </div>
+        <div class="stat-bg-icon">₹</div>
+      </div>
+
+      <div class="stat-card orders-card">
+        <div class="stat-icon-box">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <div class="stat-label">Total Orders</div>
+          <div class="stat-value">{{ stats()!.totalOrders | number }}</div>
+          <div class="stat-change" [class.up]="stats()!.ordersChange >= 0" [class.down]="stats()!.ordersChange < 0">
+            @if (stats()!.ordersChange >= 0) {
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M7 17l10-10M7 7h10v10"/></svg>
+            } @else {
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M7 7l10 10M17 7H7v10"/></svg>
+            }
+            {{ change(stats()!.ordersChange) }}
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-card customers-card">
+        <div class="stat-icon-box">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <div class="stat-label">Customers</div>
+          <div class="stat-value">{{ stats()!.totalCustomers | number }}</div>
+          <div class="stat-change" [class.up]="stats()!.customersChange >= 0" [class.down]="stats()!.customersChange < 0">
+            @if (stats()!.customersChange >= 0) {
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M7 17l10-10M7 7h10v10"/></svg>
+            } @else {
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M7 7l10 10M17 7H7v10"/></svg>
+            }
+            {{ change(stats()!.customersChange) }}
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-card pending-card">
+        <div class="stat-icon-box alert">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <div class="stat-label">Pending Orders</div>
+          <div class="stat-value">{{ stats()!.pendingOrders }}</div>
+          <div class="stat-alert">Requires attention</div>
+        </div>
+      </div>
+
+    </div><!-- /stats-grid -->
+
+    <!-- ── Charts ──────────────────────────────────────────── -->
+    <div class="chart-grid">
+
+      <!-- Revenue Bar Chart -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <h3 class="chart-title">Revenue Analytics</h3>
+            <p class="chart-sub">Last 30 days performance</p>
+          </div>
+          <div class="chart-legend">
+            <span class="legend-dot revenue-dot"></span>
+            <span>Revenue (₹)</span>
+          </div>
+        </div>
+        <div class="bar-chart" role="img" aria-label="Revenue bar chart">
+          @for (pt of stats()!.revenueChart; track pt.date) {
+            <div
+              class="bar-col"
+              [attr.title]="pt.date + ': ₹' + (pt.value | number)"
+            >
+              <div
+                class="bar revenue-bar"
+                [style.height.%]="(pt.value / maxRevenue()) * 100"
+              ></div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Orders Bar Chart -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <h3 class="chart-title">Order Volume</h3>
+            <p class="chart-sub">Last 30 days order count</p>
+          </div>
+          <div class="chart-legend">
+            <span class="legend-dot orders-dot"></span>
+            <span>Order count</span>
+          </div>
+        </div>
+        <div class="bar-chart" role="img" aria-label="Orders bar chart">
+          @for (pt of stats()!.ordersChart; track pt.date) {
+            <div
+              class="bar-col"
+              [attr.title]="pt.date + ': ' + pt.value + ' orders'"
+            >
+              <div
+                class="bar orders-bar"
+                [style.height.%]="(pt.value / maxOrders()) * 100"
+              ></div>
+            </div>
+          }
+        </div>
+      </div>
+
+    </div><!-- /chart-grid -->
+
+    <!-- ── Bottom Tables ────────────────────────────────────── -->
+    <div class="bottom-grid">
+
       <!-- Top Products -->
       <div class="table-card">
         <div class="table-header">
-          <h3>Top Products</h3>
-          <a routerLink="/admin/products" class="view-all">View all →</a>
+          <h3 class="table-title">Top Selling Products</h3>
+          <a routerLink="/admin/products" class="view-all-link" id="admin-view-all-products">
+            View All Products →
+          </a>
         </div>
         <table class="data-table">
-          <thead><tr><th>Product</th><th>Sold</th><th>Revenue</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Rank &amp; Product</th>
+              <th>Units Sold</th>
+              <th>Revenue</th>
+            </tr>
+          </thead>
           <tbody>
-            @for (p of stats()!.topProducts; track p.id) {
+            @for (p of stats()!.topProducts; track p.id; let idx = $index) {
               <tr>
                 <td class="product-cell">
+                  <span class="rank-badge" [class.gold]="idx === 0" [class.silver]="idx === 1" [class.bronze]="idx === 2">
+                    {{ idx + 1 }}
+                  </span>
                   <img [src]="p.imageUrl || '/assets/placeholder.svg'" [alt]="p.name" class="prod-thumb" />
-                  <span>{{ p.name }}</span>
+                  <span class="prod-name">{{ p.name }}</span>
                 </td>
-                <td>{{ p.totalSold }}</td>
-                <td>₹{{ p.revenue | number }}</td>
+                <td class="mono-cell">{{ p.totalSold }}</td>
+                <td class="mono-cell revenue-cell">₹{{ p.revenue | number }}</td>
               </tr>
             }
           </tbody>
@@ -96,23 +207,38 @@
       <!-- Recent Orders -->
       <div class="table-card">
         <div class="table-header">
-          <h3>Recent Orders</h3>
-          <a routerLink="/admin/orders" class="view-all">View all →</a>
+          <h3 class="table-title">Recent Orders</h3>
+          <a routerLink="/admin/orders" class="view-all-link" id="admin-view-all-orders">
+            View All Orders →
+          </a>
         </div>
         <table class="data-table">
-          <thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Customer</th>
+              <th>Total</th>
+              <th>Status</th>
+            </tr>
+          </thead>
           <tbody>
             @for (o of stats()!.recentOrders; track o.id) {
               <tr>
-                <td class="mono">{{ o.orderNumber }}</td>
+                <td class="mono-cell">{{ o.orderNumber }}</td>
                 <td>{{ o.customerName }}</td>
-                <td>₹{{ o.total | number }}</td>
-                <td><span class="status-chip status-{{ o.status.toLowerCase() }}">{{ o.status }}</span></td>
+                <td class="mono-cell">₹{{ o.total | number }}</td>
+                <td>
+                  <span class="status-chip status-{{ o.status.toLowerCase() }}">
+                    {{ o.status }}
+                  </span>
+                </td>
               </tr>
             }
           </tbody>
         </table>
       </div>
-    </div>
-  }
-</div>
+
+    </div><!-- /bottom-grid -->
+  }<!-- /stats() -->
+
+</div><!-- /dashboard -->

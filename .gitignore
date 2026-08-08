@@ -1,0 +1,75 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Production .gitignore for ShopVerse (ASP.NET Core 8, Angular 18, Node, VS, VS Code, OS)
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── .NET / Visual Studio ──────────────────────────────────────────────────────
+bin/
+obj/
+out/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+*.cs.bk
+*.user
+*.userosscache
+*.sln.docstates
+*.suo
+*.user
+*.userpfx
+*.aps
+*.pdb
+*.cache
+*.dll
+*.exe
+*.nupkg
+*.userprefs
+.vs/
+.vscode/
+appsettings.Development.json
+appsettings.Production.json
+*.local.json
+
+# ── Angular / Node.js ─────────────────────────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+dist/
+tmp/
+out-tsc/
+.angular/
+.sass-cache/
+coverage/
+*.lcov
+.ng-dev/
+
+# ── OS & IDE Temporary Files ──────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+[Dd]esktop.ini
+*.swp
+*~
+*.bak
+*.tmp
+*.log
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ── Environment & Secrets ─────────────────────────────────────────────────────
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.pem
+*.key
+*.p12
+*.pfx

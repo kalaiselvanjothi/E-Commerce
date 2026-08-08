@@ -23,8 +23,10 @@ export interface ProductVariant {
   id: string;
   name: string;
   value: string;
+  type?: string;
   priceModifier: number;
   stock: number;
+  stockQuantity?: number;
   sku?: string;
 }
 
@@ -48,6 +50,7 @@ export interface ProductListItem {
   totalReviews: number;
   totalSold: number;
   stock: number;
+  stockQuantity?: number;
   isFeatured: boolean;
   isActive: boolean;
   categoryName: string;
@@ -62,8 +65,9 @@ export interface ProductDetail extends ProductListItem {
   specifications: Record<string, string>;
   images: ProductImage[];
   variants: ProductVariant[];
-  reviews: PagedResult<Review>;
-  reviewSummary: ReviewSummary;
+  recentReviews?: Review[];
+  reviews?: PagedResult<Review>;
+  reviewSummary?: ReviewSummary;
   relatedProducts: ProductListItem[];
   createdAt: string;
 }
@@ -72,6 +76,7 @@ export interface Review {
   id: string;
   userId: string;
   userName: string;
+  reviewerName?: string;
   userAvatar?: string;
   rating: number;
   title: string;

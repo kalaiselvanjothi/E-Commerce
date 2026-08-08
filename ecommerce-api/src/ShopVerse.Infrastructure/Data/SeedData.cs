@@ -91,8 +91,9 @@ public static class SeedData
         var books = new Category { Name = "Books", Slug = "books", Description = "Fiction, non-fiction, textbooks and more", ImageUrl = "https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=400", SortOrder = 6, IsActive = true };
         var toys = new Category { Name = "Toys & Games", Slug = "toys-games", Description = "Toys for all ages, board games and puzzles", ImageUrl = "https://images.unsplash.com/photo-1558060370-d644479cb6f7?w=400", SortOrder = 7, IsActive = true };
         var grocery = new Category { Name = "Grocery", Slug = "grocery", Description = "Fresh produce, packaged foods and beverages", ImageUrl = "https://images.unsplash.com/photo-1542838132-92c53300491e?w=400", SortOrder = 8, IsActive = true };
+        var accessories = new Category { Name = "Accessories", Slug = "accessories", Description = "Bags, watches, sunglasses and leather goods", ImageUrl = "https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=400", SortOrder = 9, IsActive = true };
 
-        context.Categories.AddRange(electronics, fashion, home, sports, beauty, books, toys, grocery);
+        context.Categories.AddRange(electronics, fashion, home, sports, beauty, accessories, books, toys, grocery);
         await context.SaveChangesAsync();
 
         // Sub-categories
@@ -108,6 +109,11 @@ public static class SeedData
             new() { Name = "Kitchen", Slug = "kitchen", ParentId = home.Id, SortOrder = 1, IsActive = true, ImageUrl = "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400" },
             new() { Name = "Furniture", Slug = "furniture", ParentId = home.Id, SortOrder = 2, IsActive = true, ImageUrl = "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400" },
             new() { Name = "Gym Equipment", Slug = "gym-equipment", ParentId = sports.Id, SortOrder = 1, IsActive = true, ImageUrl = "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400" },
+            new() { Name = "Sportswear", Slug = "sportswear", ParentId = sports.Id, SortOrder = 2, IsActive = true, ImageUrl = "https://images.unsplash.com/photo-1517649763962-0c623266010b?w=400" },
+            new() { Name = "Skincare", Slug = "skincare", ParentId = beauty.Id, SortOrder = 1, IsActive = true, ImageUrl = "https://images.unsplash.com/photo-1608248597261-833258657b45?w=400" },
+            new() { Name = "Grooming & Makeup", Slug = "grooming-makeup", ParentId = beauty.Id, SortOrder = 2, IsActive = true, ImageUrl = "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400" },
+            new() { Name = "Bags & Luggage", Slug = "bags-luggage", ParentId = accessories.Id, SortOrder = 1, IsActive = true, ImageUrl = "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400" },
+            new() { Name = "Watches & Eyewear", Slug = "watches-eyewear", ParentId = accessories.Id, SortOrder = 2, IsActive = true, ImageUrl = "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400" },
         };
 
         context.Categories.AddRange(subCats);
@@ -116,7 +122,7 @@ public static class SeedData
 
     private static async Task SeedProductsAsync(ShopVerseDbContext context)
     {
-        if (await context.Products.AnyAsync()) return;
+        if (await context.Products.CountAsync() >= 100) return;
 
         var categories = await context.Categories.ToListAsync();
         var smartphones = categories.First(c => c.Slug == "smartphones");
@@ -1035,8 +1041,23 @@ public static class SeedData
             },
         };
 
-        context.Products.AddRange(products);
-        await context.SaveChangesAsync();
+        var existingSkus = (await context.Products.Select(p => p.Sku).ToListAsync())
+            .Where(s => !string.IsNullOrEmpty(s))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        var existingSlugs = (await context.Products.Select(p => p.Slug).ToListAsync())
+            .Where(s => !string.IsNullOrEmpty(s))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        var newProducts = products
+            .Where(p => !existingSkus.Contains(p.Sku) && !existingSlugs.Contains(p.Slug))
+            .ToList();
+
+        if (newProducts.Any())
+        {
+            context.Products.AddRange(newProducts);
+            await context.SaveChangesAsync();
+        }
     }
 
     private static async Task SeedCouponsAsync(ShopVerseDbContext context)

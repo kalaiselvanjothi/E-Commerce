@@ -5,61 +5,34 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
   selector: 'app-admin-shell',
   standalone: true,
   imports: [RouterOutlet, RouterLink, RouterLinkActive],
-  template: `
-    <div class="admin-layout">
-      <aside class="admin-sidebar">
-        <div class="sidebar-logo">
-          <span class="logo-icon">SV</span>
-          <div>
-            <div class="logo-title">ShopVerse</div>
-            <div class="logo-sub">Admin Panel</div>
-          </div>
-        </div>
-        <nav class="admin-nav">
-          @for (item of navItems; track item.path) {
-            <a [routerLink]="item.path" routerLinkActive="active" class="nav-item">
-              <span class="nav-icon">{{ item.icon }}</span>
-              <span>{{ item.label }}</span>
-            </a>
-          }
-        </nav>
-        <div class="sidebar-footer">
-          <a routerLink="/" class="nav-item">
-            <span class="nav-icon">🏠</span>
-            <span>Back to Store</span>
-          </a>
-        </div>
-      </aside>
-      <main class="admin-main">
-        <router-outlet />
-      </main>
-    </div>
-  `,
-  styles: [`
-    .admin-layout { display: flex; min-height: 100vh; padding-top: 0; }
-    .admin-sidebar {
-      width: var(--sidebar-width); background: var(--color-header-bg); color: rgba(255,255,255,0.8);
-      position: fixed; top: 0; left: 0; bottom: 0; display: flex; flex-direction: column;
-      z-index: var(--z-sticky); overflow-y: auto;
-    }
-    .sidebar-logo { display: flex; align-items: center; gap: 12px; padding: 20px 16px; border-bottom: 1px solid rgba(255,255,255,0.1); }
-    .logo-icon { width: 36px; height: 36px; background: var(--color-primary); color: #fff; font-weight: 800; font-size: 13px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .logo-title { font-weight: 700; font-size: 14px; color: #fff; }
-    .logo-sub { font-size: 11px; color: rgba(255,255,255,0.4); }
-    .admin-nav { flex: 1; padding: 12px 8px; display: flex; flex-direction: column; gap: 2px; }
-    .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; font-size: 13px; color: rgba(255,255,255,0.7); text-decoration: none; transition: all 150ms; cursor: pointer; border: none; background: none; font-family: var(--font-sans); width: 100%; &:hover { background: rgba(255,255,255,0.08); color: #fff; } &.active { background: var(--color-primary); color: #fff; } }
-    .nav-icon { font-size: 16px; flex-shrink: 0; }
-    .sidebar-footer { padding: 8px; border-top: 1px solid rgba(255,255,255,0.1); }
-    .admin-main { margin-left: var(--sidebar-width); flex: 1; background: var(--color-bg); padding: var(--space-8); min-height: 100vh; }
-  `]
+  templateUrl: './admin-shell.component.html',
+  styleUrl: './admin-shell.component.scss'
 })
 export class AdminShellComponent {
   readonly navItems = [
-    { path: '/admin/dashboard',  icon: '📊', label: 'Dashboard' },
-    { path: '/admin/products',   icon: '📦', label: 'Products' },
-    { path: '/admin/categories', icon: '🗂️', label: 'Categories' },
-    { path: '/admin/orders',     icon: '🛍️', label: 'Orders' },
-    { path: '/admin/customers',  icon: '👥', label: 'Customers' },
-    { path: '/admin/coupons',    icon: '🏷️', label: 'Coupons' },
+    {
+      path: '/admin/dashboard', label: 'Dashboard',
+      icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>`
+    },
+    {
+      path: '/admin/products', label: 'Products',
+      icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>`
+    },
+    {
+      path: '/admin/categories', label: 'Categories',
+      icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>`
+    },
+    {
+      path: '/admin/orders', label: 'Orders',
+      icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>`
+    },
+    {
+      path: '/admin/customers', label: 'Customers',
+      icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`
+    },
+    {
+      path: '/admin/coupons', label: 'Coupons',
+      icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>`
+    },
   ];
 }

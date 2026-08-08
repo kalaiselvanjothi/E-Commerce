@@ -1,119 +1,284 @@
-<div class="container py-10">
-  <app-breadcrumb [items]="[{label:'Home',link:'/'},{label:pageTitle}]" />
+<div class="container-fluid category-page-container">
 
-  <div class="list-layout">
-    <!-- Filters Sidebar -->
-    <aside class="filters-sidebar" [class.open]="showFilters()">
-      <div class="sidebar-header">
-        <h3>Filters</h3>
-        <button class="close-btn" (click)="showFilters.set(false)">✕</button>
+  <!-- ── Category Hero Banner Header ─────────────────────────────────────────── -->
+  <section class="category-hero-banner">
+    <div class="container hero-banner-inner">
+      <div class="hero-banner-content">
+        <app-breadcrumb [items]="[{label:'Home',link:'/'},{label:pageTitle}]" />
+        <h1 class="cat-hero-title">{{ pageTitle }}</h1>
+        <p class="cat-hero-sub">Upgrade your style &amp; discover premium quality items at unbeatable prices.</p>
+
+        @if (result()) {
+          <div class="cat-count-badge">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            <span>Showing {{ result()!.items.length }} of {{ result()!.totalCount }} items</span>
+          </div>
+        }
       </div>
 
-      <!-- Brand -->
-      @if (filterMeta()?.brands?.length) {
-        <div class="filter-section">
-          <h4 class="filter-label">Brand</h4>
-          <select class="form-control" [(ngModel)]="brand">
-            <option value="">All Brands</option>
-            @for (b of filterMeta()!.brands; track b) {
-              <option [value]="b">{{ b }}</option>
-            }
-          </select>
+      <div class="hero-banner-visual" aria-hidden="true">
+        <div class="cat-preview-card">
+          <img src="https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=400&q=80" alt="Category collection preview" />
         </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="container">
+
+    <!-- Active Filter Tags -->
+    @if (brand || minPrice || maxPrice || minRating || inStock) {
+      <div class="active-filters-bar">
+        <span class="active-label">Active Filters:</span>
+        @if (brand) {
+          <span class="filter-tag">
+            Brand: {{ brand }}
+            <button (click)="brand=''; applyFilters()" aria-label="Remove brand filter">
+              <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+          </span>
+        }
+        @if (minPrice) {
+          <span class="filter-tag">
+            Min: ₹{{ minPrice }}
+            <button (click)="minPrice=''; applyFilters()" aria-label="Remove min price filter">
+              <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+          </span>
+        }
+        @if (maxPrice) {
+          <span class="filter-tag">
+            Max: ₹{{ maxPrice }}
+            <button (click)="maxPrice=''; applyFilters()" aria-label="Remove max price filter">
+              <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+          </span>
+        }
+        @if (minRating) {
+          <span class="filter-tag">
+            {{ minRating }}★+
+            <button (click)="minRating=''; applyFilters()" aria-label="Remove rating filter">
+              <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+          </span>
+        }
+        @if (inStock) {
+          <span class="filter-tag">
+            In Stock
+            <button (click)="inStock=false; applyFilters()" aria-label="Remove in-stock filter">
+              <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+          </span>
+        }
+        <button class="btn-clear-all" (click)="clearFilters()">Clear all</button>
+      </div>
+    }
+
+    <div class="list-wrapper">
+      <!-- ── Sticky Filters Sidebar ────────────────────────────────────────────── -->
+      @if (showFilters()) {
+        <div class="filters-overlay" (click)="showFilters.set(false)"></div>
       }
 
-      <!-- Price Range -->
-      <div class="filter-section">
-        <h4 class="filter-label">Price Range</h4>
-        <div class="price-inputs">
-          <input type="number" class="form-control" [(ngModel)]="minPrice" placeholder="Min ₹" />
-          <span>–</span>
-          <input type="number" class="form-control" [(ngModel)]="maxPrice" placeholder="Max ₹" />
+      <aside class="filters-sidebar" [class.open]="showFilters()" aria-label="Product filters" role="complementary">
+        <div class="sidebar-header">
+          <h3>
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/>
+            </svg>
+            Filters
+          </h3>
+          <button class="sidebar-close" (click)="showFilters.set(false)" aria-label="Close filters">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path d="M18 6 6 18M6 6l12 12"/>
+            </svg>
+          </button>
         </div>
-      </div>
 
-      <!-- Rating -->
-      <div class="filter-section">
-        <h4 class="filter-label">Min Rating</h4>
-        <div class="rating-options">
-          @for (r of [4,3,2,1]; track r) {
+        <!-- Categories Tree -->
+        <div class="filter-section">
+          <h4 class="filter-label">Categories</h4>
+          <div class="cat-tree-list">
+            <a routerLink="/products" class="cat-tree-item" [class.active]="!categorySlug">
+              <span>All Products</span>
+            </a>
+            @for (cat of categories(); track cat.id) {
+              <a [routerLink]="['/category', cat.slug]" class="cat-tree-item" [class.active]="categorySlug === cat.slug">
+                <span>{{ cat.name }}</span>
+                <span class="tree-count">{{ cat.productCount || 0 }}</span>
+              </a>
+            }
+          </div>
+        </div>
+
+        <!-- Brand Filter -->
+        @if (filterMeta()?.brands?.length) {
+          <div class="filter-section">
+            <h4 class="filter-label">Brand</h4>
+            <select class="form-control" [(ngModel)]="brand" id="filter-brand">
+              <option value="">All Brands</option>
+              @for (b of filterMeta()!.brands; track b) {
+                <option [value]="b">{{ b }}</option>
+              }
+            </select>
+          </div>
+        }
+
+        <!-- Price Range -->
+        <div class="filter-section">
+          <h4 class="filter-label">Price Range (₹)</h4>
+          <div class="price-inputs">
+            <input type="number" id="filter-min-price" class="form-control" [(ngModel)]="minPrice" placeholder="Min ₹" min="0" />
+            <span>–</span>
+            <input type="number" id="filter-max-price" class="form-control" [(ngModel)]="maxPrice" placeholder="Max ₹" min="0" />
+          </div>
+        </div>
+
+        <!-- Size Pills (Conditional for Fashion & Apparel) -->
+        @if (isSizeApplicable) {
+          <div class="filter-section">
+            <h4 class="filter-label">Size</h4>
+            <div class="size-pills-grid">
+              @for (s of ['XS','S','M','L','XL','XXL']; track s) {
+                <button
+                  type="button"
+                  class="size-pill"
+                  [class.active]="selectedSize === s"
+                  (click)="selectedSize = (selectedSize === s ? '' : s); applyFilters()"
+                >{{ s }}</button>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Color Swatches -->
+        <div class="filter-section">
+          <h4 class="filter-label">Color</h4>
+          <div class="color-swatches-grid">
+            @for (c of [{name:'Black',cls:'color-black'},{name:'White',cls:'color-white'},{name:'Blue',cls:'color-blue'},{name:'Pink',cls:'color-pink'},{name:'Purple',cls:'color-purple'},{name:'Beige',cls:'color-beige'}]; track c.name) {
+              <span
+                class="color-swatch {{ c.cls }}"
+                [class.active]="selectedColor === c.name"
+                [title]="c.name"
+                (click)="selectedColor = (selectedColor === c.name ? '' : c.name); applyFilters()"
+              ></span>
+            }
+          </div>
+        </div>
+
+        <!-- Rating -->
+        <div class="filter-section">
+          <h4 class="filter-label">Rating</h4>
+          <div class="rating-options">
+            @for (r of [4,3,2,1]; track r) {
+              <label class="radio-option">
+                <input type="radio" [value]="r.toString()" [(ngModel)]="minRating" [name]="'rating'" />
+                <span>{{ r }}★ &amp; above</span>
+              </label>
+            }
             <label class="radio-option">
-              <input type="radio" [value]="r.toString()" [(ngModel)]="minRating" />
-              <span>{{ r }}★ & above</span>
+              <input type="radio" value="" [(ngModel)]="minRating" [name]="'rating'" />
+              <span>All ratings</span>
             </label>
-          }
-          <label class="radio-option">
-            <input type="radio" value="" [(ngModel)]="minRating" />
-            <span>All ratings</span>
+          </div>
+        </div>
+
+        <!-- In Stock Only -->
+        <div class="filter-section">
+          <label class="checkbox-option">
+            <input type="checkbox" [(ngModel)]="inStock" id="filter-in-stock" />
+            <span>In Stock Only</span>
           </label>
         </div>
-      </div>
 
-      <!-- In Stock -->
-      <div class="filter-section">
-        <label class="checkbox-option">
-          <input type="checkbox" [(ngModel)]="inStock" />
-          <span>In Stock Only</span>
-        </label>
-      </div>
-
-      <div class="filter-actions">
-        <button class="btn-primary btn-full" (click)="applyFilters()">Apply Filters</button>
-        <button class="btn-ghost btn-full" (click)="clearFilters()">Clear All</button>
-      </div>
-    </aside>
-
-    <!-- Main Content -->
-    <main class="products-main">
-      <!-- Toolbar -->
-      <div class="toolbar">
-        <div class="toolbar-left">
-          <button class="filter-toggle" (click)="showFilters.set(!showFilters())">
-            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
-            Filters
-          </button>
-          @if (result()) {
-            <span class="results-count">{{ result()!.totalCount | number }} products</span>
-          }
+        <!-- Actions -->
+        <div class="filter-actions">
+          <button class="btn-primary btn-full" (click)="applyFilters()">Apply Filters</button>
+          <button class="btn-ghost btn-full" (click)="clearFilters()">Clear All</button>
         </div>
-        <div class="toolbar-right">
-          <select class="sort-select" [(ngModel)]="sortBy" (ngModelChange)="onSortChange($event)">
-            @for (opt of sortOptions; track opt.value) {
-              <option [value]="opt.value">{{ opt.label }}</option>
+      </aside>
+
+      <!-- ── Main Products Content ───────────────────────────────────────────── -->
+      <main class="products-main">
+        <!-- Toolbar Bar -->
+        <div class="toolbar" role="toolbar" aria-label="Products toolbar">
+          <div class="toolbar-left">
+            <button
+              class="filter-toggle"
+              [class.active]="showFilters()"
+              (click)="showFilters.set(!showFilters())"
+              aria-label="Toggle filters"
+              [attr.aria-expanded]="showFilters()"
+            >
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/>
+              </svg>
+              Filters
+              @if (brand || minPrice || maxPrice || minRating || inStock) {
+                <span class="badge-active-dot"></span>
+              }
+            </button>
+
+            @if (result()) {
+              <span class="results-count">
+                Showing <strong>{{ result()!.items.length }}</strong> of <strong>{{ result()!.totalCount }}</strong> products
+              </span>
             }
-          </select>
-        </div>
-      </div>
+          </div>
 
-      <!-- Grid -->
-      @if (loading()) {
-        <div class="products-grid">
-          @for (s of skeletonItems; track $index) {
-            <div class="product-skeleton">
-              <app-skeleton height="180px" radius="12px 12px 0 0" />
-              <div class="skeleton-body">
-                <app-skeleton height="11px" width="50%" />
-                <app-skeleton height="14px" />
-                <app-skeleton height="14px" width="75%" />
-                <app-skeleton height="18px" width="45%" />
+          <div class="toolbar-right">
+            <span class="sort-label">Sort by:</span>
+            <select
+              id="product-sort"
+              class="sort-select"
+              [(ngModel)]="sortBy"
+              (ngModelChange)="onSortChange($event)"
+              aria-label="Sort products"
+            >
+              @for (opt of sortOptions; track opt.value) {
+                <option [value]="opt.value">{{ opt.label }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <!-- Grid -->
+        @if (loading()) {
+          <div class="products-grid-4col" aria-busy="true" aria-label="Loading products">
+            @for (s of skeletonItems; track $index) {
+              <div class="product-skeleton">
+                <app-skeleton height="200px" radius="var(--radius-lg) var(--radius-lg) 0 0" />
+                <div class="skeleton-body">
+                  <app-skeleton height="10px" width="50%" />
+                  <app-skeleton height="14px" />
+                  <app-skeleton height="14px" width="75%" />
+                  <app-skeleton height="18px" width="45%" />
+                </div>
               </div>
-            </div>
-          }
-        </div>
-      } @else if (!result()?.items?.length) {
-        <app-empty-state icon="🔍" title="No products found" description="Try adjusting your filters or search query." actionLabel="Clear Filters" (click)="clearFilters()" />
-      } @else {
-        <div class="products-grid">
-          @for (product of result()!.items; track product.id) {
-            <app-product-card [product]="product" />
-          }
-        </div>
-        <app-pagination
-          [currentPage]="result()!.page"
-          [totalPages]="result()!.totalPages"
-          (pageChange)="onPageChange($event)"
-        />
-      }
-    </main>
+            }
+          </div>
+        } @else if (!result()?.items?.length) {
+          <app-empty-state
+            icon="🔍"
+            title="No products found"
+            description="Try adjusting your filters or search query to find what you're looking for."
+            actionLabel="Clear all filters"
+            (action)="clearFilters()"
+          />
+        } @else {
+          <div class="products-grid-4col" role="list" aria-label="Products">
+            @for (product of result()!.items; track product.id) {
+              <app-product-card [product]="product" />
+            }
+          </div>
+          <app-pagination
+            [currentPage]="result()!.page"
+            [totalPages]="result()!.totalPages"
+            (pageChange)="onPageChange($event)"
+          />
+        }
+      </main>
+    </div>
   </div>
+
 </div>

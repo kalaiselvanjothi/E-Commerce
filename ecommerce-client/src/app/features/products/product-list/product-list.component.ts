@@ -1,10 +1,10 @@
 import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
 import { ProductService } from '../../../core/services/product.service';
-import { ProductListItem, PagedResult, FilterMeta } from '../../../core/models/product.models';
+import { ProductListItem, PagedResult, FilterMeta, Category } from '../../../core/models/product.models';
 import { ProductCardComponent } from '../../../shared/components/product-card/product-card.component';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 import { BreadcrumbComponent } from '../../../shared/components/breadcrumb/breadcrumb.component';
@@ -14,7 +14,7 @@ import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.
 @Component({
   selector: 'app-product-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, ProductCardComponent, PaginationComponent, BreadcrumbComponent, EmptyStateComponent, SkeletonComponent],
+  imports: [CommonModule, FormsModule, RouterLink, ProductCardComponent, PaginationComponent, BreadcrumbComponent, EmptyStateComponent, SkeletonComponent],
   templateUrl: './product-list.component.html',
   styleUrl: './product-list.component.scss'
 })
@@ -26,6 +26,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
   result    = signal<PagedResult<ProductListItem> | null>(null);
   filterMeta = signal<FilterMeta | null>(null);
+  categories = signal<Category[]>([]);
   loading   = signal(true);
   showFilters = signal(false);
 
@@ -38,6 +39,8 @@ export class ProductListComponent implements OnInit, OnDestroy {
   minRating = '';
   inStock  = false;
   isFeatured = false;
+  selectedSize  = '';
+  selectedColor = '';
   sortBy   = 'newest';
   page     = 1;
   pageSize = 24;
@@ -53,6 +56,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   readonly skeletonItems = Array(12).fill(0);
 
   ngOnInit(): void {
+    this.productService.getCategories().subscribe(cats => this.categories.set(cats));
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe(p => {
       this.categorySlug = p['slug'] ?? '';
       this.page = 1;
@@ -76,6 +80,11 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void { this.destroy$.next(); this.destroy$.complete(); }
 
+  get isSizeApplicable(): boolean {
+    const slug = (this.categorySlug || '').toLowerCase();
+    return !slug || slug.includes('fashion') || slug.includes('mens') || slug.includes('womens') || slug.includes('footwear') || slug.includes('sports');
+  }
+
   loadProducts(): void {
     this.loading.set(true);
     const filters: Record<string, unknown> = {
@@ -87,6 +96,8 @@ export class ProductListComponent implements OnInit, OnDestroy {
       minRating: this.minRating || undefined,
       inStock:   this.inStock || undefined,
       isFeatured:this.isFeatured || undefined,
+      size:      this.selectedSize || undefined,
+      color:     this.selectedColor || undefined,
       sortBy:    this.sortBy,
       page:      this.page,
       pageSize:  this.pageSize,
@@ -102,6 +113,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   clearFilters(): void {
     this.brand = ''; this.minPrice = ''; this.maxPrice = '';
     this.minRating = ''; this.inStock = false;
+    this.selectedSize = ''; this.selectedColor = '';
     this.applyFilters();
   }
 

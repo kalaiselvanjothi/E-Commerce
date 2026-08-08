@@ -6,12 +6,11 @@ import { CartService } from '../../core/services/cart.service';
 import { ToastService } from '../../core/services/toast.service';
 import { AuthService } from '../../core/services/auth.service';
 import { Cart } from '../../core/models/cart.models';
-import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 
 @Component({
   selector: 'app-cart',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, EmptyStateComponent],
+  imports: [CommonModule, RouterLink, FormsModule],
   templateUrl: './cart.component.html',
   styleUrl: './cart.component.scss'
 })
@@ -51,7 +50,11 @@ export class CartComponent implements OnInit {
     this.applyingCoupon.set(true);
     this.cartService.applyCoupon({ code: this.couponCode.toUpperCase() }).subscribe({
       next: c => { this.cart.set(c); this.toast.success('Coupon applied!'); this.applyingCoupon.set(false); },
-      error: () => this.applyingCoupon.set(false)
+      error: err => {
+        this.applyingCoupon.set(false);
+        const msg = err?.error?.message || err?.message || 'Invalid or expired coupon code.';
+        this.toast.error(msg);
+      }
     });
   }
 
@@ -59,5 +62,17 @@ export class CartComponent implements OnInit {
     this.cartService.removeCoupon().subscribe({
       next: c => { this.cart.set(c); this.couponCode = ''; this.toast.success('Coupon removed.'); }
     });
+  }
+
+  readonly freeShippingThreshold = 499;
+
+  get amountToFreeShipping(): number {
+    const subtotal = this.cart()?.subtotal ?? 0;
+    return Math.max(0, this.freeShippingThreshold - subtotal);
+  }
+
+  get freeShippingProgress(): number {
+    const subtotal = this.cart()?.subtotal ?? 0;
+    return Math.min(100, Math.round((subtotal / this.freeShippingThreshold) * 100));
   }
 }

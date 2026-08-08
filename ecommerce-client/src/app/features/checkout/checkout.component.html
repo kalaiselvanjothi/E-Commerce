@@ -1,170 +1,386 @@
-<div class="container py-8">
-  <h1 class="page-title">Checkout</h1>
+<section class="checkout-page">
+  <div class="container">
 
-  <!-- Steps -->
-  <div class="steps">
-    @for (s of [{n:1,l:'Address'},{n:2,l:'Delivery'},{n:3,l:'Payment'}]; track s.n) {
-      <div class="step" [class.active]="step() === s.n" [class.done]="step() > s.n">
-        <div class="step-circle">{{ step() > s.n ? '✓' : s.n }}</div>
-        <span class="step-label">{{ s.l }}</span>
-      </div>
-      @if (s.n < 3) { <div class="step-line" [class.done]="step() > s.n"></div> }
-    }
-  </div>
-
-  <div class="checkout-layout">
-    <div class="checkout-main">
-
-      <!-- Step 1: Address -->
-      @if (step() === 1) {
-        <div class="checkout-section">
-          <h2>Delivery Address</h2>
-
-          @for (addr of addresses(); track addr.id) {
-            <label class="address-option" [class.selected]="selectedAddressId() === addr.id">
-              <input type="radio" [value]="addr.id" [checked]="selectedAddressId() === addr.id" (change)="selectedAddressId.set(addr.id)" />
-              <div class="address-body">
-                <div class="addr-name">{{ addr.fullName }} <span class="addr-type">{{ addr.addressType }}</span> @if (addr.isDefault) { <span class="addr-default">Default</span> }</div>
-                <div class="addr-line">{{ addr.addressLine1 }}@if (addr.addressLine2) {, {{ addr.addressLine2 }}}</div>
-                <div class="addr-line">{{ addr.city }}, {{ addr.state }} - {{ addr.pincode }}</div>
-                <div class="addr-phone">📞 {{ addr.phone }}</div>
-              </div>
-            </label>
-          }
-
-          <button class="add-address-btn" (click)="showNewAddress.set(!showNewAddress())">
-            + Add New Address
-          </button>
-
-          @if (showNewAddress()) {
-            <form [formGroup]="addressForm" (ngSubmit)="saveAddress()" class="address-form" novalidate>
-              <div class="form-row">
-                <div class="form-group">
-                  <label>Full Name</label>
-                  <input type="text" formControlName="fullName" class="form-control" [class.is-invalid]="f.fullName.invalid && f.fullName.touched" placeholder="John Doe" />
-                  @if (f.fullName.invalid && f.fullName.touched) { <span class="form-error">Required.</span> }
-                </div>
-                <div class="form-group">
-                  <label>Phone</label>
-                  <input type="tel" formControlName="phone" class="form-control" [class.is-invalid]="f.phone.invalid && f.phone.touched" placeholder="10-digit mobile" />
-                  @if (f.phone.invalid && f.phone.touched) { <span class="form-error">Valid 10-digit number.</span> }
-                </div>
-              </div>
-              <div class="form-group">
-                <label>Address Line 1</label>
-                <input type="text" formControlName="addressLine1" class="form-control" placeholder="House/Flat No., Street" />
-              </div>
-              <div class="form-group">
-                <label>Address Line 2 (optional)</label>
-                <input type="text" formControlName="addressLine2" class="form-control" placeholder="Area, Landmark" />
-              </div>
-              <div class="form-row">
-                <div class="form-group">
-                  <label>City</label>
-                  <input type="text" formControlName="city" class="form-control" placeholder="City" />
-                </div>
-                <div class="form-group">
-                  <label>State</label>
-                  <input type="text" formControlName="state" class="form-control" placeholder="State" />
-                </div>
-                <div class="form-group">
-                  <label>Pincode</label>
-                  <input type="text" formControlName="pincode" class="form-control" [class.is-invalid]="f.pincode.invalid && f.pincode.touched" placeholder="6-digit" />
-                  @if (f.pincode.invalid && f.pincode.touched) { <span class="form-error">Valid 6-digit pincode.</span> }
-                </div>
-              </div>
-              <div class="form-row">
-                <div class="form-group">
-                  <label>Type</label>
-                  <select formControlName="addressType" class="form-control">
-                    <option>Home</option><option>Work</option><option>Other</option>
-                  </select>
-                </div>
-                <div class="form-group default-check">
-                  <label class="checkbox-option" style="margin-top:28px">
-                    <input type="checkbox" formControlName="isDefault" />
-                    <span>Set as default</span>
-                  </label>
-                </div>
-              </div>
-              <button type="submit" class="btn-primary" [disabled]="addressForm.invalid">Save Address</button>
-            </form>
-          }
-
-          <button class="btn-primary step-next" [disabled]="!selectedAddressId()" (click)="step.set(2)">Continue to Delivery →</button>
-        </div>
-      }
-
-      <!-- Step 2: Delivery -->
-      @if (step() === 2) {
-        <div class="checkout-section">
-          <h2>Delivery Options</h2>
-          @for (opt of deliveryOptions; track opt.value) {
-            <label class="radio-card" [class.selected]="deliveryOption === opt.value">
-              <input type="radio" [value]="opt.value" [(ngModel)]="deliveryOption" />
-              <div class="radio-card-body">
-                <div class="rc-title">{{ opt.label }}</div>
-                <div class="rc-sub">{{ opt.subtitle }}</div>
-              </div>
-              <div class="rc-price">@if (opt.price === 99 && cart()?.isFreeShipping) { FREE } @else { ₹{{ opt.price }} }</div>
-            </label>
-          }
-          <div class="step-btns">
-            <button class="btn-ghost" (click)="step.set(1)">← Back</button>
-            <button class="btn-primary step-next" (click)="step.set(3)">Continue to Payment →</button>
-          </div>
-        </div>
-      }
-
-      <!-- Step 3: Payment -->
-      @if (step() === 3) {
-        <div class="checkout-section">
-          <h2>Payment Method</h2>
-          @for (opt of paymentOptions; track opt.value) {
-            <label class="radio-card" [class.selected]="paymentMethod === opt.value">
-              <input type="radio" [value]="opt.value" [(ngModel)]="paymentMethod" />
-              <div class="radio-card-body">
-                <div class="rc-title">{{ opt.label }}</div>
-                <div class="rc-sub">{{ opt.subtitle }}</div>
-              </div>
-            </label>
-          }
-          <div class="step-btns">
-            <button class="btn-ghost" (click)="step.set(2)">← Back</button>
-            <button class="btn-primary place-order-btn" [disabled]="placing()" (click)="placeOrder()">
-              @if (placing()) { Processing… } @else { Place Order →  }
-            </button>
-          </div>
-        </div>
-      }
+    <!-- ── Page Header ─────────────────────────────────── -->
+    <div class="page-header">
+      <h1 class="page-title">Checkout</h1>
     </div>
 
-    <!-- Order Summary -->
-    @if (cart()) {
-      <div class="order-summary">
-        <h3>Order Summary</h3>
-        <div class="summary-items">
-          @for (item of cart()!.items; track item.id) {
-            <div class="summary-item">
-              <img [src]="item.productImage || '/assets/placeholder.svg'" [alt]="item.productName" />
-              <div class="si-info">
-                <span class="si-name">{{ item.productName }}</span>
-                <span class="si-qty">Qty: {{ item.quantity }}</span>
-              </div>
-              <span class="si-price">₹{{ item.totalPrice | number }}</span>
-            </div>
-          }
+    <!-- ── Multi-Step Progress Stepper ──────────────────── -->
+    <div class="steps-bar" aria-label="Checkout progress">
+      <div class="step" [class.active]="step() === 1" [class.done]="step() > 1">
+        <div class="step-bubble">
+          @if (step() > 1) {
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20,6 9,17 4,12"/></svg>
+          } @else { 1 }
         </div>
-        <div class="summary-lines">
-          <div class="sl"><span>Subtotal</span><span>₹{{ cart()!.subtotal | number }}</span></div>
-          @if (cart()!.couponDiscount) { <div class="sl discount"><span>Discount</span><span>−₹{{ cart()!.couponDiscount | number }}</span></div> }
-          <div class="sl"><span>Shipping</span>
-            @if (cart()!.isFreeShipping) { <span class="free">FREE</span> } @else { <span>₹{{ shippingCost }}</span> }
-          </div>
-          <div class="sl"><span>Tax (18%)</span><span>₹{{ cart()!.taxAmount | number }}</span></div>
-          <div class="sl total"><span>Total</span><span>₹{{ cart()!.total | number }}</span></div>
+        <div class="step-meta">
+          <span class="step-name">Shipping Address</span>
+          <span class="step-hint">Delivery destination</span>
         </div>
       </div>
-    }
-  </div>
-</div>
+
+      <div class="step-connector" [class.done]="step() > 1"></div>
+
+      <div class="step" [class.active]="step() === 2" [class.done]="step() > 2">
+        <div class="step-bubble">
+          @if (step() > 2) {
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20,6 9,17 4,12"/></svg>
+          } @else { 2 }
+        </div>
+        <div class="step-meta">
+          <span class="step-name">Delivery Method</span>
+          <span class="step-hint">Choose shipping speed</span>
+        </div>
+      </div>
+
+      <div class="step-connector" [class.done]="step() > 2"></div>
+
+      <div class="step" [class.active]="step() === 3">
+        <div class="step-bubble">3</div>
+        <div class="step-meta">
+          <span class="step-name">Payment</span>
+          <span class="step-hint">Pay securely</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Main 2-Column Layout ────────────────────────── -->
+    <div class="checkout-layout">
+
+      <!-- Left: Active Step Content -->
+      <div class="checkout-main">
+
+        <!-- ── Step 1: Shipping Address ───────────────── -->
+        @if (step() === 1) {
+          <div class="checkout-section">
+            <h2 class="section-title">
+              <span class="step-num">1</span>
+              Select Shipping Address
+            </h2>
+
+            <div class="address-cards">
+              @for (addr of addresses(); track addr.id) {
+                <label
+                  class="address-card"
+                  [class.selected]="selectedAddressId() === addr.id"
+                >
+                  <input
+                    type="radio"
+                    [value]="addr.id"
+                    [checked]="selectedAddressId() === addr.id"
+                    (change)="selectedAddressId.set(addr.id)"
+                  />
+                  <div class="addr-body">
+                    <div class="addr-header">
+                      <span class="addr-name">{{ addr.fullName }}</span>
+                      <span class="addr-type-tag">{{ addr.addressType || 'HOME' }}</span>
+                      @if (addr.isDefault) {
+                        <span class="addr-default-tag">DEFAULT</span>
+                      }
+                    </div>
+                    <div class="addr-line">{{ addr.addressLine1 }}@if (addr.addressLine2) {, {{ addr.addressLine2 }}}</div>
+                    <div class="addr-line">{{ addr.city }}, {{ addr.state }} – {{ addr.pincode }}</div>
+                    <div class="addr-phone">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+                      </svg>
+                      {{ addr.phone }}
+                    </div>
+                  </div>
+                </label>
+              }
+            </div>
+
+            <!-- Toggle New Address Form Button -->
+            <button
+              class="btn-add-address"
+              [class.open]="showNewAddress()"
+              (click)="showNewAddress.set(!showNewAddress())"
+              id="toggle-new-address-btn"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              {{ showNewAddress() ? 'Cancel' : '+ Add New Address' }}
+            </button>
+
+            <!-- Address Form Panel -->
+            @if (showNewAddress()) {
+              <form [formGroup]="addressForm" (ngSubmit)="saveAddress()" class="address-form-panel" novalidate>
+                <div class="form-row-2">
+                  <div class="form-group">
+                    <label for="fullName">Full Name</label>
+                    <input id="fullName" type="text" formControlName="fullName" class="form-control"
+                      [class.is-invalid]="f.fullName.invalid && f.fullName.touched"
+                      placeholder="John Doe" autocomplete="name" />
+                  </div>
+                  <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input id="phone" type="tel" formControlName="phone" class="form-control"
+                      [class.is-invalid]="f.phone.invalid && f.phone.touched"
+                      placeholder="10-digit mobile number" autocomplete="tel" />
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="addressLine1">Address Line 1</label>
+                  <input id="addressLine1" type="text" formControlName="addressLine1" class="form-control"
+                    placeholder="House/Flat No., Street" autocomplete="address-line1" />
+                </div>
+
+                <div class="form-group">
+                  <label for="addressLine2">Address Line 2 <span class="optional-tag">(optional)</span></label>
+                  <input id="addressLine2" type="text" formControlName="addressLine2" class="form-control"
+                    placeholder="Area, Landmark" autocomplete="address-line2" />
+                </div>
+
+                <div class="form-row-3">
+                  <div class="form-group">
+                    <label for="city">City</label>
+                    <input id="city" type="text" formControlName="city" class="form-control" placeholder="City" />
+                  </div>
+                  <div class="form-group">
+                    <label for="state">State</label>
+                    <input id="state" type="text" formControlName="state" class="form-control" placeholder="State" />
+                  </div>
+                  <div class="form-group">
+                    <label for="pincode">PIN Code</label>
+                    <input id="pincode" type="text" formControlName="pincode" class="form-control" placeholder="6-digit PIN" />
+                  </div>
+                </div>
+
+                <div class="form-row-2">
+                  <div class="form-group">
+                    <label for="addressType">Address Type</label>
+                    <select id="addressType" formControlName="addressType" class="form-control">
+                      <option value="Home">Home</option>
+                      <option value="Work">Work</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                  <div class="form-group checkbox-group">
+                    <label class="checkbox-row">
+                      <input type="checkbox" formControlName="isDefault" id="is-default-check" />
+                      <span>Set as default shipping address</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="form-actions-right">
+                  <button type="submit" class="btn-primary-save" [disabled]="addressForm.invalid" id="save-address-btn">
+                    Save Address
+                  </button>
+                </div>
+              </form>
+            }
+
+            <div class="step-nav">
+              <span></span>
+              <button
+                class="btn-next"
+                [disabled]="!selectedAddressId()"
+                (click)="step.set(2)"
+                id="step1-continue-btn"
+              >
+                Continue to Delivery Method
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        }
+
+        <!-- ── Step 2: Delivery Method ───────────────── -->
+        @if (step() === 2) {
+          <div class="checkout-section">
+            <h2 class="section-title">
+              <span class="step-num">2</span>
+              Choose Delivery Option
+            </h2>
+
+            <div class="option-cards">
+              @for (opt of deliveryOptions; track opt.value) {
+                <label
+                  class="option-card"
+                  [class.selected]="deliveryOption === opt.value"
+                >
+                  <input type="radio" [value]="opt.value" [(ngModel)]="deliveryOption" />
+                  <div class="option-icon">
+                    @if (opt.value === 'Standard') { 🚚 }
+                    @else if (opt.value === 'Express') { ⚡ }
+                    @else { 🚀 }
+                  </div>
+                  <div class="option-body">
+                    <div class="option-title">{{ opt.label }}</div>
+                    <div class="option-sub">{{ opt.subtitle }}</div>
+                  </div>
+                  @if (opt.value === 'Standard' && cart()?.isFreeShipping) {
+                    <span class="option-price-free">FREE</span>
+                  } @else {
+                    <span class="option-price">₹{{ opt.price }}</span>
+                  }
+                </label>
+              }
+            </div>
+
+            <div class="step-nav">
+              <button class="btn-back" (click)="step.set(1)" id="step2-back-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back
+              </button>
+              <button class="btn-next" (click)="step.set(3)" id="step2-continue-btn">
+                Continue to Payment
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        }
+
+        <!-- ── Step 3: Payment Method ────────────────── -->
+        @if (step() === 3) {
+          <div class="checkout-section">
+            <h2 class="section-title">
+              <span class="step-num">3</span>
+              Select Payment Method
+            </h2>
+
+            <div class="option-cards">
+              @for (opt of paymentOptions; track opt.value) {
+                <label
+                  class="option-card"
+                  [class.selected]="paymentMethod === opt.value"
+                >
+                  <input type="radio" [value]="opt.value" [(ngModel)]="paymentMethod" />
+                  <div class="option-icon">
+                    @if (opt.value === 'Razorpay') { 💳 }
+                    @else { 💵 }
+                  </div>
+                  <div class="option-body">
+                    <div class="option-title">{{ opt.label }}</div>
+                    <div class="option-sub">{{ opt.subtitle }}</div>
+                  </div>
+                </label>
+              }
+            </div>
+
+            <!-- SSL Security Note Card -->
+            <div class="security-card-box">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+              <span>256-bit SSL Encrypted Payment. Your data is 100% safe &amp; secured by Razorpay.</span>
+            </div>
+
+            <div class="step-nav">
+              <button class="btn-back" (click)="step.set(2)" id="step3-back-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back
+              </button>
+
+              <!-- Primary Place Order / Proceed to Payment CTA -->
+              <button
+                class="btn-place-order"
+                [disabled]="placing()"
+                (click)="placeOrder()"
+                id="place-order-btn"
+              >
+                @if (placing()) {
+                  <span class="btn-spinner"></span>
+                  Processing Payment…
+                } @else if (paymentMethod === 'Razorpay') {
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
+                  Proceed to Razorpay Payment
+                } @else {
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/>
+                  </svg>
+                  Place Order (COD)
+                }
+              </button>
+            </div>
+          </div>
+        }
+
+      </div><!-- /checkout-main -->
+
+      <!-- ── Right: Sticky Order Summary ───────────────── -->
+      @if (cart()) {
+        <div class="order-summary">
+          <h3 class="summary-title">Order Summary</h3>
+
+          <!-- Items preview list -->
+          <div class="summary-items">
+            @for (item of cart()!.items; track item.id) {
+              <div class="summary-item">
+                <img
+                  class="si-img"
+                  [src]="item.productImage || '/assets/placeholder.svg'"
+                  [alt]="item.productName"
+                  loading="lazy"
+                />
+                <div class="si-info">
+                  <span class="si-name">{{ item.productName }}</span>
+                  <span class="si-meta">Qty: {{ item.quantity }}</span>
+                </div>
+                <span class="si-price">₹{{ item.totalPrice | number }}</span>
+              </div>
+            }
+          </div>
+
+          <div class="summary-divider"></div>
+
+          <!-- Price breakdown lines -->
+          <div class="summary-lines">
+            <div class="sl">
+              <span>Subtotal</span>
+              <span>₹{{ cart()!.subtotal | number }}</span>
+            </div>
+            @if (cart()!.couponDiscount && cart()!.couponDiscount! > 0) {
+              <div class="sl discount">
+                <span>Coupon Discount</span>
+                <span>−₹{{ cart()!.couponDiscount! | number }}</span>
+              </div>
+            }
+            <div class="sl">
+              <span>Shipping Charge</span>
+              @if (cart()!.isFreeShipping) {
+                <span class="sl-free">FREE</span>
+              } @else {
+                <span>₹{{ shippingCost | number }}</span>
+              }
+            </div>
+            <div class="sl">
+              <span>Tax (18% GST)</span>
+              <span>₹{{ cart()!.taxAmount | number }}</span>
+            </div>
+          </div>
+
+          <!-- Total Row -->
+          <div class="sl-total">
+            <span class="sl-total-label">Grand Total</span>
+            <span class="sl-total-amount">₹{{ cart()!.total | number }}</span>
+          </div>
+
+          <!-- Razorpay security badge -->
+          <div class="summary-secure">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            256-bit SSL Secured by Razorpay
+          </div>
+        </div>
+      }
+
+    </div><!-- /checkout-layout -->
+  </div><!-- /container -->
+</section>

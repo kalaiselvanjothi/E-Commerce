@@ -17,7 +17,8 @@ public static class ServiceExtensions
     {
         services.AddDbContext<ShopVerseDbContext>(opts =>
             opts.UseNpgsql(config.GetConnectionString("DefaultConnection"),
-                b => b.MigrationsAssembly("ShopVerse.Infrastructure")));
+                b => b.MigrationsAssembly("ShopVerse.Infrastructure"))
+                .ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning)));
         return services;
     }
 
@@ -101,7 +102,7 @@ public static class ServiceExtensions
     {
         services.AddCors(opts =>
             opts.AddPolicy("AllowAngular", policy =>
-                policy.WithOrigins("http://localhost:4200", "https://localhost:4200")
+                policy.SetIsOriginAllowed(_ => true)
                       .AllowAnyHeader()
                       .AllowAnyMethod()
                       .AllowCredentials()));
@@ -111,6 +112,7 @@ public static class ServiceExtensions
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
         services.AddScoped<IJwtService, JwtService>();
+        services.AddTransient<IEmailSender, SmtpEmailSender>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IAddressService, AddressService>();
         services.AddScoped<ICategoryService, CategoryService>();
@@ -120,6 +122,7 @@ public static class ServiceExtensions
         services.AddScoped<IWishlistService, WishlistService>();
         services.AddScoped<IOrderService, OrderService>();
         services.AddScoped<IPaymentService, PaymentService>();
+        services.AddScoped<IInvoiceService, PdfInvoiceService>();
         services.AddScoped<IAdminService, AdminService>();
         return services;
     }

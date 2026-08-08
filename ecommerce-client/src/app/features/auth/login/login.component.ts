@@ -45,6 +45,38 @@ export class LoginComponent {
     });
   }
 
+  loginGoogle(idToken: string): void {
+    if (this.loading()) return;
+    this.loading.set(true);
+    this.auth.googleLogin(idToken).subscribe({
+      next: () => {
+        this.toast.success('Google login successful!');
+        const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+        this.router.navigateByUrl(returnUrl);
+      },
+      error: (err) => {
+        this.loading.set(false);
+        this.toast.error(err?.error?.message || 'Google authentication failed.');
+      }
+    });
+  }
+
+  loginFacebook(accessToken: string): void {
+    if (this.loading()) return;
+    this.loading.set(true);
+    this.auth.facebookLogin(accessToken).subscribe({
+      next: () => {
+        this.toast.success('Facebook login successful!');
+        const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+        this.router.navigateByUrl(returnUrl);
+      },
+      error: (err) => {
+        this.loading.set(false);
+        this.toast.error(err?.error?.message || 'Facebook authentication failed.');
+      }
+    });
+  }
+
   get email()    { return this.form.controls.email; }
   get password() { return this.form.controls.password; }
 }

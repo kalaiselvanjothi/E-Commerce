@@ -39,6 +39,18 @@ export class AuthService {
     );
   }
 
+  googleLogin(idToken: string): Observable<AuthResponse> {
+    return this.api.post<AuthResponse>('/auth/google-login', { idToken }).pipe(
+      tap(r => this.persist(r))
+    );
+  }
+
+  facebookLogin(accessToken: string): Observable<AuthResponse> {
+    return this.api.post<AuthResponse>('/auth/facebook-login', { accessToken }).pipe(
+      tap(r => this.persist(r))
+    );
+  }
+
   logout(): void {
     const refresh = localStorage.getItem(REFRESH_KEY);
     if (refresh) {

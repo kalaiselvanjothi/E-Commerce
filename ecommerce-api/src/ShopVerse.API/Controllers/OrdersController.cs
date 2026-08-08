@@ -14,7 +14,22 @@ namespace ShopVerse.API.Controllers;
 public class OrdersController : ControllerBase
 {
     private readonly IOrderService _orderService;
-    public OrdersController(IOrderService orderService) => _orderService = orderService;
+    private readonly IInvoiceService _invoiceService;
+
+    public OrdersController(IOrderService orderService, IInvoiceService invoiceService)
+    {
+        _orderService   = orderService;
+        _invoiceService = invoiceService;
+    }
+
+    /// <summary>Generate and download professional PDF tax invoice</summary>
+    [HttpGet("{id:guid}/invoice")]
+    [ProducesResponseType(typeof(FileResult), 200)]
+    public async Task<IActionResult> DownloadInvoice(Guid id)
+    {
+        var pdfBytes = await _invoiceService.GenerateInvoicePdfAsync(GetUserId(), id);
+        return File(pdfBytes, "application/pdf", $"ShopVerse-Invoice-{id}.pdf");
+    }
 
     /// <summary>Place a new order from the current cart</summary>
     [HttpPost]

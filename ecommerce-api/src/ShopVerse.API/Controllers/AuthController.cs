@@ -39,6 +39,26 @@ public class AuthController : ControllerBase
         return Ok(ApiResponse<AuthResponseDto>.Ok(result, "Login successful"));
     }
 
+    /// <summary>Authenticate with Google ID Token</summary>
+    [HttpPost("google-login")]
+    [ProducesResponseType(typeof(ApiResponse<AuthResponseDto>), 200)]
+    [ProducesResponseType(typeof(ApiResponse<object>), 400)]
+    public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginDto dto)
+    {
+        var result = await _authService.GoogleLoginAsync(dto);
+        return Ok(ApiResponse<AuthResponseDto>.Ok(result, "Google authentication successful"));
+    }
+
+    /// <summary>Authenticate with Facebook Access Token</summary>
+    [HttpPost("facebook-login")]
+    [ProducesResponseType(typeof(ApiResponse<AuthResponseDto>), 200)]
+    [ProducesResponseType(typeof(ApiResponse<object>), 400)]
+    public async Task<IActionResult> FacebookLogin([FromBody] FacebookLoginDto dto)
+    {
+        var result = await _authService.FacebookLoginAsync(dto);
+        return Ok(ApiResponse<AuthResponseDto>.Ok(result, "Facebook authentication successful"));
+    }
+
     /// <summary>Refresh access token using refresh token</summary>
     [HttpPost("refresh")]
     [ProducesResponseType(typeof(ApiResponse<AuthResponseDto>), 200)]

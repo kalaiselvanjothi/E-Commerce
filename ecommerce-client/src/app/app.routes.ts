@@ -15,6 +15,13 @@ export const routes: Routes = [
       { path: 'cart', loadComponent: () => import('./features/cart/cart.component').then(m => m.CartComponent) },
       { path: 'wishlist', canActivate: [authGuard], loadComponent: () => import('./features/wishlist/wishlist.component').then(m => m.WishlistComponent) },
       { path: 'checkout', canActivate: [authGuard], loadComponent: () => import('./features/checkout/checkout.component').then(m => m.CheckoutComponent) },
+      { path: 'contact', loadComponent: () => import('./features/contact/contact.component').then(m => m.ContactComponent) },
+      { path: 'track-order', loadComponent: () => import('./features/track-order/track-order.component').then(m => m.TrackOrderComponent) },
+      { path: 'offers', loadComponent: () => import('./features/offers/offers.component').then(m => m.OffersComponent) },
+      { path: 'privacy', loadComponent: () => import('./features/contact/contact.component').then(m => m.ContactComponent) },
+      { path: 'terms', loadComponent: () => import('./features/contact/contact.component').then(m => m.ContactComponent) },
+      { path: 'shipping-policy', loadComponent: () => import('./features/contact/contact.component').then(m => m.ContactComponent) },
+      { path: 'returns', loadComponent: () => import('./features/contact/contact.component').then(m => m.ContactComponent) },
       {
         path: 'account',
         canActivate: [authGuard],
